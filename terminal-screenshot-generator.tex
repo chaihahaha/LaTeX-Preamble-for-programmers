@@ -3,15 +3,15 @@
 \usepackage[most]{tcolorbox}
 
 \newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
-listing only,listing options={language=sh},
+listing only,listing options={language=sh, breaklines=true},
 every listing line={\small\ttfamily\bfseries{[root@my-computer root]\$ } }}
 
 \newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
-listing only,listing options={language=SQL},
+listing only,listing options={language=SQL, breaklines=true},
 every listing line={\small\ttfamily\bfseries{SQL> }}}
 
 \newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
-listing only,listing options={language={}, basicstyle=\small\ttfamily},
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true},
 every listing line={}}
 
 \begin{document}
