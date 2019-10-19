@@ -1,0 +1,42 @@
+\documentclass{article}
+
+\usepackage[most]{tcolorbox}
+
+\newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=sh},
+every listing line={\small\ttfamily\bfseries{[root@my-computer root]\$ } }}
+
+\newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=SQL},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily},
+every listing line={}}
+
+\begin{document}
+
+% Use this command to create a command line prompt
+\begin{commandshell}
+ls -al
+cd /usr/lib
+rm -rf *
+\end{commandshell}
+
+% Use this command to create a SQL interactive prompt
+\begin{sqlshell}
+show parameter instance_name;
+show parameter db_name;
+show parameter db_block_size;
+\end{sqlshell}
+
+% Use this command to create a command line message prompt
+\begin{messageshell}
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+db_block_size                        integer     8192
+
+\end{messageshell}
+
+\end{document}
