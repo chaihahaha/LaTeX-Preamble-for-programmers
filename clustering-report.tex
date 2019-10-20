@@ -1,0 +1,163 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\DeclareMathOperator{\Tr}{Tr}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+% \setlength\parindent{0pt}
+\title{Clustering Homework Report}
+\date{}
+\author{Shitong CHAI}
+
+
+\begin{document}
+\maketitle
+
+\section {Clustering Validation}
+\begin{enumerate}
+% Content: https://www.zhihu.com/collection/363736931
+\item A Priori
+\begin{itemize}
+\item Purity: 
+$$
+P_i = \frac{\max\limits_j n_{ij}}{n_i}, \mathcal{N}(i,j)=n_{ij}=|C_i\cup T_j|
+$$
+ where $C$ is a set of clusters and $T$ is the ground truth.
+\item F-Measure: $$F_i=\frac{2n_{ij_i}}{n_i+m_{j_i}}$$ where $n_{ij_i}=\max\limits_j n_{ij}, m_{j_i}=|T_{j_i}|$
+\item Any similarity measure can be used to measure the distance between clustering result to ground truth, for example Rand Index which will be introduced in Section 2.
+\end{itemize}
+\item Hopkins Statistic: $$H=\frac{\sum\limits_{i=1}^m u_i^d}{\sum\limits_{i=1}^m u_i^d+\sum\limits_{i=1}^m w_i^d}$$ where $X$ is a set of clusters,Y is randomly generated clusters, $u_i$ is the distance of $y_i\in Y$ from its nearest neighbor in $X$, and $w_i$ is the distance of $x_i\in X$ from its nearest neighbor in $X$.
+\item Clustering instability: $$Instab=\frac{\sum\limits_{b,b^\prime=1}^n d(C_b,C_b^\prime)}{n^2}$$ where $C_b$ is the clustering result obtained by applying clustering algorithm on $n$ different datasets: $S_b, b=1,\cdots,n$.
+\item Calinski-Harabaz Index: $$s(k)=\frac{\Tr(B_k)(N-k)}{\Tr(W_k)(k-1)}$$ where $N$ is the number of points in the dataset, $k$ is the number of clusters, $B_k$ is between group dispersion matrix and $W_k$ is the within-cluster dispersion matrix.
+\item Maybe for small and low dimension dataset we can use t-SNE to visualize clustering result and see how good the clustering result is.
+\end{enumerate}
+
+\section{Rand Index}
+% https://en.wikipedia.org/wiki/Rand_index
+Rand Index is a similarity measure of two sets of clusters. Rand index is similar to statistical accuracy, but this measure is used when no ground truth is given.
+A dataset $D=\{o_1,\cdots,o_n\}$ has two sets of clusters $X$, and $Y$, where $X=\{X_1,\cdots,X_r\}, Y=\{Y_1,\cdots,Y_s\}$.
+Define:
+\begin{itemize}
+\item $a$ as the number of element pairs in $D$ that are in the same subset in $X$ and in the same subset in $Y$;
+
+\item $b$ as the number of element pairs in $D$ that are in different subset in $X$ and in different subset in $Y$;
+
+\item $c$ as the number of element pairs in $D$ that are in the same subset in $X$ and in different subset in $Y$;
+
+\item $d$ as the number of element pairs in $D$ that are in different subset in $X$ and in the same subset in $Y$.
+\end{itemize}
+
+Rand Index: $RI=\frac{a+b}{a+b+c+d}=\frac{2(a+b)}{n(n-1)}$, where $\frac{n(n-1)}{2}$ is the number of distinct element pairs.
+
+Rand Index is similar to accuracy which is shown by: $RI=\frac{TP+TN}{TP+FP+FN+TN}$, where TP is TruePositive, TN is TrueNegative, FP is FalsePositive, FN is FalseNegative.
+\section{DBSCAN Algorithm}
+%https://zhuanlan.zhihu.com/p/41749224
+
+
+There are 6 definitions and 2 lemmas in the original paper of DBSCAN. I will explain the definitions and lemmas with my understandings and show how the algorithm works.
+
+
+\noindent\textbf{Definition 1} $\varepsilon$ neighborhood: $N_\varepsilon(P)$ is a closed ball around a point $p$, $N_\varepsilon(p)=\{q\in D|dist(p,q)\leq\varepsilon\}$.
+
+
+
+\noindent\textbf{Definition 2} Directly density-reachable: If $p$ and $q$ are directly density-reachable wrt $\varepsilon$ and $MinPts$, then:
+\begin{enumerate}
+\item $p\in N_\varepsilon(q)$;
+\item $|N_\varepsilon(q)|\geq MinPts$(core point)
+\end{enumerate}
+
+\noindent\textbf{Definition 3} Density-reachable: If $p_1,p_2,\cdots,p_n$ are n points, $p_1=q,p_n=q$ and $p_{i+1}$ is directly density-reachable from $p_i$, then p is density-reachable from q wrt $\varepsilon$ and $MinPts$. 
+
+
+Density-reachable is not symmetrical because there the points in the array of n points must be directly density-reachable in the same direction. So we can observe that density reachability is the standard extension of directly density-reachability.
+
+
+Two border points are not density-reachable, but we cannot separate two border points into two different clusters. So we have to define density-connectivity
+
+
+\noindent\textbf{Definition 4} Density-connected: If core point $o\in D$, and border point $p,q$ are density-reachable from $o$ wrt $\varepsilon$ and $MinPts$, then $p$ and $q$ are density-connected.
+
+
+Intuitively, a cluster is a point set where all the points are maximumly density-connected and without noisy points. A cluster must contain at least $MinPts$ points, because a cluster must at leastly contain a point $p$ and be density-connected to itself with the help of a core point $o$. So the cluster with a core point $o$ must contain at least $MinPts$ points.
+
+
+\noindent\textbf{Definition 5} Cluster: A cluster $C$ is the non-empty subset of dataset $D$ and satisfies:
+\begin{enumerate}
+\item $\forall p,q$: If $p\in C$ and $q$ is density-reachable from $p$ wrt $\varepsilon$ and $MinPts$, then $q\in C$.
+\item $\forall p,q\in C$: $p$ and $q$ are density-connected.
+\end{enumerate}
+\noindent\textbf{Definition 6} Noise: If $C_1,C_2,\cdots,C_k$ are $k$ clusters of dataset $D$, then $noise = \{p\in D|\forall i:p\notin C_i\}$.
+
+
+The following two lemmas will show that the algorithm will cover all the points in a dataset and converge correctly:
+
+
+\noindent\textbf{Lemma 1} If $p\in D$ and $|N_\varepsilon(p)|\geq MinPts$ ($p$ is core point), then $O=\{o\in D $ and $ o $ is density-reachable from $ p\}$
+
+
+The lemma 1 shows that any point in a cluster is density-reachable from a core point in the cluster. So a cluster will cover all the point(border point or core point) from any core point exactly.
+
+
+\noindent\textbf{Lemma 2} If $C$ is a cluster and $p$ is any core point in the cluster, then cluster $C=\{o|o $ is density-reachable from $p \}$.
+
+
+The main idea of DBSCAN is that from any given core point, expand constantly to density-reachable region to get a maximum area covering core points and border points where all the points are density-connected to each other.
+
+
+\begin{itemize}
+\item $\varepsilon$: If we choose a small $\varepsilon$ value, the density of some regions in a sparse cluster might be less than $MinPts$, which will cause that many homogeneous small pieces which belong to the same cluster are clustered into different clusters. In contrary, if we choose a large $\varepsilon$ value, the heterogeneous clusters might be clustered into the same cluster.
+\item $MinPts$: There is a universal guideline for $MinPts$: $MinPts\geq dim+1$.
+\end{itemize}
+
+
+Before introducing DBSCAN algorithm, I'd like to introduce some notations. 
+
+
+The goal of DBSCAN is to cluster dataset $D=\{x_1,x_2,\cdots,x_N\}$ into K clusters and noise. Define cluster mapping array:
+
+$$
+m_i=
+\begin{cases}
+         j,          & \text{if }x_i\text{ belongs to the jth cluster(j>0)}\\
+         -1,         & \text{if }x_i\text{ is noise}
+\end{cases}
+$$
+So the goal of DBSCAN is converted to generating $m_i,i=1,2,\cdots,N$,where $K$ is the number of distinct sets $\{m_i\}_{i=1}^N$.
+
+The DBSCAN algorithm:
+\begin{algorithm}
+\caption{DBSCAN}\label{euclid}
+\begin{algorithmic}[1]
+\Require Given parameter $\varepsilon,\mathcal{M}$ and $N_\varepsilon(i),i=1,2,\cdots,N$.
+\Ensure $M=\{m_i\}_{i=1}^N$
+\State $k=1;m_i=0,i=1,2,\cdots,N;$
+\State $I=\{1,2,\cdots,N\}$;
+\While{$I\neq \emptyset$}
+    \State Get an element $i$ from $I$, and let $I:=I\setminus\{i\}$;
+    \If{$m_i=0$}\Comment{If point i has not been visited.}
+        \State Initialize $T:=N_\varepsilon(i)$;
+        \If{$|T|<\mathcal{M}$}
+            \State $m_i=-1$;\Comment{Label point i as noise point}
+        \Else\Comment{If point i is a core point}
+        
+            \State $m_i=k$;\Comment{Indicate point i belonging to $C_k$}
+            \While{$T\neq \emptyset$}
+                \State Get any element $j$ from $T$, let $T:=T\setminus\{j\}$;
+                \If{$m_j=0$ or $m_j=-1$}
+                    \State $m_j=k$;
+                \EndIf 
+                \If{$|N_\varepsilon(j)|\geq\mathcal{M}$}
+                    \State{$T:=T\cup N_\varepsilon(j)$;}
+                \EndIf 
+            \EndWhile 
+            \State $k=k+1$;
+        \EndIf 
+    \EndIf
+\EndWhile
+
+\end{algorithmic}
+\end{algorithm}
+\end{document}
