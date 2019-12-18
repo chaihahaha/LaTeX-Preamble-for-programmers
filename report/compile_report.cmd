@@ -1,0 +1,4 @@
+xelatex report_template
+bibtex report_template
+xelatex report_template
+xelatex report_template
