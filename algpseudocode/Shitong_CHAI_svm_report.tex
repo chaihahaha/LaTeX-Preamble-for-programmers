@@ -1,12 +1,24 @@
 \documentclass[a4paper,12pt]{report}
-\usepackage{amsmath}
+\usepackage{amsmath, amsthm, amsfonts}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{enumitem}
+
+\usepackage{hyperref}
+
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
+\fancyhf{}
+\rhead{\rightmark}
+
 \geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
 \title{SVM Report}
 \date{}
 \author{Shitong CHAI}
@@ -15,9 +27,190 @@
 \maketitle
 \tableofcontents
 
-\chapter {SVM\cite{Nobody06}}
+\chapter{Lagrange multipliers}
+
+\section{Constrained extremum}
+
+To solve a constrained optimization problem with equation constraint, we can use the method of Lagrange multipliers. The main idea of Lagrange multipliers is to transform the equation constraint into the Lagrangian function, which will turn a constrained optimization problem into an unconstrained optimization problem. But to prove this, we have to use the Implicit function theorem. We have learnt that if we have an equation $P(x,y)=0$, then by solve the equation $\frac{\partial P(x,y)}{\partial x}=0$
+with the help of the chain rule, we can get $y^\prime (x)$. But for normed affine spaces, or more specifically, vector spaces, we have to use the following more general version of Implicit function theorem
+
+\begin{theorem}
+    (Implicit function theorem) Let E,F, and G be normed affine spaces, let $\Omega$ be an open subset of $E\times F$, let $f:\Omega\to G$ be a function defined on $\Omega$, let $(a,b)\in \Omega$, let $c\in G$, and assume that $f(a,b)=c$. If the following assumptions hold
+    \begin{enumerate}[label={(\arabic*)}]
+        \item The function $f:\Omega\to G$ is continuous on $\Omega$;
+        \item F and G are complete normed affine space
+        \item $\frac{\partial f}{\partial y}(x,y)$ exists for every $(x,y)\in \Omega$, and $\frac{\partial f}{\partial y}:\Omega\to\mathcal L (\vec F;\vec G)$ is continuous;
+        \item $\frac{\partial f}{\partial y}(a,b)$ is a bijection of $\mathcal L (\vec F;\vec G)$, and $\left(\frac{\partial f}{\partial y}(a,b)\right)^{-1} \mathcal L (\vec G;\vec F)$
+    \end{enumerate}
+    then the following properties hold:
+    \begin{enumerate}[label={(\alph*)}]
+        \item There exist some open subset $A\subseteq E$ containing a and some open subset $B\subseteq F$ containing b, such that $A\times B\subseteq \Omega$, and for every $x\in A$, the equation $f(x,y)=c$ has a single solution $y=g(x)$, and thus, there is a unique function $g:A\to B$ such that $f(x,g(x))=c$, for all $x\in A$;
+        \item The function $g:A\in B$ is continuous.
+        \item If the derivative $\mathrm D f(a,b)$ exists, then the derivative $\mathrm D g(a)$ exists, and 
+            \[
+                \mathrm D g(a)=-\left( \frac{\partial f}{\partial y} (a,b)\right)^{-1} \circ \frac{\partial f}{\partial x} (a,b);
+            \]
+            and if in addition, $\frac{\partial f}{\partial x}:\Omega\to\mathcal L (\vec E;\vec G)$ is also continuous ($f\in C^1$ on $\Omega$), then the derivative $\mathrm D g:A\to \mathcal L (\vec E; \vec F)$ is continuous, and $\forall x\in A$, 
+            \[
+                \mathrm D g(x)=-\left( \frac{\partial f}{\partial y} (x,g(x))\right)^{-1} \circ \frac{\partial f}{\partial x} (x,g(x));
+            \]
+
+    \end{enumerate}
+\end{theorem}
+
+Given a real-valued function $J:\Omega\to\mathbb R$ defined on open set $\Omega\subseteq E$, where $E$ is a normed vector space and $U=\{x\in\Omega | \varphi_i(x)=0, 1\leq i\leq m\}$ (where the functions $\varphi_i:\Omega\to\mathbb R$ are continuous), then $J$ has a local extremum at the point $u\in U$ with respect to $U$.
+
+A necessary condition to find the constrained extrema is Lagrange multipliers.
+
+More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a product of normed vector spaces and $U=\{(u_1,u_2)\in\Omega | \varphi(u_1,u_2)=0\}$ for a continuous function $\varphi:\Omega\to E_2$, the following condition holds.
+
+\begin{theorem}
+    (Necessary condition for a constrained extremum) Let $\Omega\subseteq E_1 \times E_2$ be an open subset of a product of normed vector spaces, with $E_1$ a Banach space, let $\varphi: \Omega\to E_2$ be a $C^1$-function, and let
+
+    \[
+        U=\{(u_1,u_2)\in \Omega | \varphi (u_1, u_2)=0\}.
+    \]
+
+    Moreover, let $u=(u_1,u_2)\in U$ be a point such that
+
+    \[
+        \frac{\partial \varphi}{\partial x_2}(u_1,u_2)\in \mathcal L (E_2;E_2)\ and\ \left(\frac{\partial \varphi}{\partial x_2}(u_1,u_2)\right)^{-1}\in \mathcal L (E_2;E_2),
+    \]
+
+    and let $J : \Omega \to \mathbb R $ be a function which is differentiable at u. If J has a constrained local extremum at u, then there is a continuous linear form $\Lambda(u)\in\mathcal L (E_2;\mathbb R)$ such that
+
+    \[
+        dJ(u)+\Lambda(u)\circ d\varphi(u)=0.
+    \]
+
+\end{theorem}
+\begin{proof}
+    Use implicit function theorem, there exist some open subsets $U_1\subseteq E_1,U_2\subseteq E_2$, and a continuous function $g:U_1\to U_2$ with $(u_1,u_2)\in U_1\times U_2 \subseteq \Omega$ such that $\forall v_1\in U_1$
+
+    \[
+        \varphi(v_1,g(v_1))=0,
+    \]
+
+    $g$ is differentiable at $u_1\in U_1$ and
+
+    \[
+        dg(u_1)=-\left( \frac{\partial \varphi}{\partial x_1}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u).
+    \]
+
+    So we have a single variable function $G$ with
+
+    \[
+        G(v_1)=J(v_1,g(v_1))
+    \]
+
+    for all $v_1\in U_1$ and $G$ is differentiable at $u_1$ and it has a local extremum at $u_1$ on $U_1$, with
+
+    \[
+        dG(u_1)=0
+    \]
+
+    By the chain rule,
+
+    \[
+        dG(u_1)=\frac{\partial J}{\partial x_1}(u) - \frac{\partial J}{\partial x_2}(u)\circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u)=0.
+    \]
+
+    then
+
+    \[
+        \frac{\partial J}{\partial x_1}(u)=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u),
+    \]
+
+    and trivially
+
+    \[
+        \frac{\partial J}{\partial x_2}(u)=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_2}(u),
+    \]
+
+    So if we let $\Lambda(u)=-\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2} (u) \right)^{-1}$, then we can get
+
+    \begin{align*}
+        dJ(u) &=\frac{\partial J}{\partial x_1}(u)+\frac{\partial J}{\partial x_2}(u) \\
+        &=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2} (u) \right)^{-1} \circ \left( \frac{\partial \varphi}{\partial x_1} (u) + \frac{\partial \varphi}{\partial x_2} (u)   \right) \\
+        &=-\Lambda(u)\circ d\varphi (u),
+    \end{align*}
+
+\end{proof}
+
+\section{Lagrange Multipliers}
+
+Lagrange multiplier method is just the special case of Theorem 1.1.2 when $E_1=\mathbb R^{n-m}$ and $E_2=\mathbb R^m$, $1\leq m < n\in \mathbb N$, $\Omega\subseteq\mathbb R^n$ is an open set, $J:\Omega\to\mathbb R$ and for $m$ functions $\varphi_i:\Omega\to\mathbb R$, we have $U\subseteq \Omega$
+
+\[
+    U=\{v\in\Omega|\varphi_i(v)=0,1\leq i\leq m\}
+\]
+
+Then we have the necessary condition for a constrained extremum in terms of Lagrange multipliers
+
+\begin{theorem}
+    (Necessary condition for a constrained extremum in terms of Lagrange multipliers) Let $\Omega$ be an open subset of $\mathbb R^n$, for m functions $\varphi_i\in C^1:\Omega\to\mathbb R$ with $1\leq m < n$, let
+    \[
+        U=\{v\in\Omega|\varphi_i(v)=0,1\leq i\leq m\},
+    \]
+    and let $u\in U$ such that $d\varphi_i(u)\in\mathcal L(\mathbb R^n;\mathbb R)$ are linearly independent. If $J:\Omega\to \mathbb R$ is a differentiable function at $u\in U$ and if J has a local constrained extremum at u, then $\exists!$ $\lambda_i(u)\in\mathbb R$, $i=1,2,\cdots,m$, such that
+    \[
+        dJ(u)+\lambda_1(u)d\varphi_1(u)+\cdots+\lambda_m(u)d\varphi_m(u)=0;
+    \]
+    equivalently,
+    \[
+        \nabla J(u)+\lambda_1(u)\nabla\varphi_1(u)+\cdots+\lambda_1(u)\nabla\varphi_1(u)=0.
+    \]
+\end{theorem}
+\begin{proof}
+    Use Theorem 1.1.2 to proof. Notice that this theorem is a special case of Theorem where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
+    \[
+        dJ(u)+\Lambda(u)\circ d\varphi(u)=0
+    \]
+    can be rewritten as 
+    \[
+        dJ(u)+\lambda_1(u)d\varphi_1(u)+\cdots+\lambda_m(u)d\varphi_m(u)=0;
+    \]
+\end{proof}
+
+The common format to state the use of Lagrange multipliers in a constrained optimization problem is by introducing Lagrangian. 
+
+Lagrangian is a function $L:\Omega\times\mathbb R^m\to\mathbb R$ given by
+
+\[
+    L(v,\lambda)=J(v)+\lambda_1\varphi_1(v)+\cdots+\lambda_m\varphi_m(v)
+\]
+
+with $\lambda=(\lambda_1,\cdots,\lambda_m)$. 
+
+And we have $\exists \mu=(\mu_1,\cdots,\mu_m), u\in U$ such that
+
+\[
+    dJ(u)+\mu_1(u)d\varphi_1(u)+\cdots+\mu_m(u)d\varphi_m(u)=0
+\]
+
+iff
+
+\[
+    dL(u,\mu)=0,
+\]
+equivalently,
+\[
+    \nabla L(u,\mu)=0.
+\]
 
 
+\chapter{KKT conditions, Dual problem, Slater's conditions}
+\section{The KKT Conditions}
+
+
+
+\chapter{Linear Support Vector Classifier}
+\chapter{Linear SVM with soft margin, Hinge Loss}
+\chapter{Kernel method}
+\chapter{Support Vector Regression}
+\chapter{Support Vector Clustering}
+\chapter{Vapnik-Chervonenkis dimension and structural risk minimization}
+\chapter{Conclusion}
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
