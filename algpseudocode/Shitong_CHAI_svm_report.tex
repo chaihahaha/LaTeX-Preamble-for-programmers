@@ -136,7 +136,6 @@ More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a prod
         &=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2} (u) \right)^{-1} \circ \left( \frac{\partial \varphi}{\partial x_1} (u) + \frac{\partial \varphi}{\partial x_2} (u)   \right) \\
         &=-\Lambda(u)\circ d\varphi (u),
     \end{align*}
-
 \end{proof}
 
 \section{Lagrange Multipliers}
@@ -164,7 +163,7 @@ Then we have the necessary condition for a constrained extremum in terms of Lagr
     \]
 \end{theorem}
 \begin{proof}
-    Use Theorem 1.1.2 to proof. Notice that this theorem is a special case of Theorem 1.1.2 where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
+    Use Theorem 1.1.2 to prove. Notice that this theorem is a special case of Theorem 1.1.2 where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
     \[
         dJ(u)+\Lambda(u)\circ d\varphi(u)=0
     \]
@@ -203,28 +202,221 @@ equivalently,
 
 \chapter{KKT conditions, Dual problem, Slater's conditions}
 \section{The KKT Conditions}
+In order to keep the generality, we should talk in the context of Hilbert space. To define Hilbert space, we will firstly define Hermitian form, then Hermitian space, which is the generalization of the concept of Euclidean space to complex field.
+
+Hermitian form is a special complex vector function.
+\begin{definition}
+    (Hermitian form\cite{gallier2019algebra}) If a function $\varphi :E\times E\to \mathbb C$ is sesquilinear and $\forall u,v\in E$, we have 
+    \[
+        \varphi(v,u)=\overline{\varphi(u,v)},
+    \]
+    then it is a Hermitian form.
+\end{definition}
+
+Hermitian space is just the space which has a positive definite Hermitian form.
 
 \begin{definition}
-    (Hermitian form\cite{gallier2019algebra}) If a function $\varphi :E\times E\to \mathbb C$ is sesquilinear and $\forall u,v\in E$, we have $\varphi(v,u)=\overline{\varphi(u,v)}$, then it is a Hermitian form.
+    (Hermitian Space\cite{gallier2019algebra}) Given a complex vector space E, a Hermitian form $\varphi:E\times E\to \mathbb C$ is positive if $\varphi(u,u)\geq 0$ for all $u\in E$, and positive definite if $\varphi(u,u)>0$ for all $u\neq 0$. A pair $\langle E,\varphi \rangle$ where E is a complex vector space and $\varphi$ is a Hermitian form on E is called a pre-Hilbert space if $\varphi$ is positive, and a Hermitian space if $\varphi$ is positive definite.
 \end{definition}
-\begin{definition}
-    (Hermitian Space\cite{gallier2019algebra}) Given a complex vector space E, a Hermitian form $\varphi:E\times E\to \mathbb C$ is positive of $\varphi(u,u)\geq 0$ for all $u\in E$, and positive definite if $\varphi(u,u)>0$ for all $u\neq 0$. A pair $\langle E,\varphi \rangle$ where E is a complex vector space and $\varphi$ is a Hermitian form on E is called a pre-Hilbert space if $\varphi$ is positive, and a Hermitian space if $\varphi$ is positive definite.
-\end{definition}
+
+Hilbert space is a complete normed vector Hermitian space whose norm is induced by its Hermitian form.
 
 \begin{definition}
     (Hilbert Space\cite{gallier2019algebra}) A (complex) Hermitian space $\langle E,\varphi \rangle$ which is a complete normed vector space under the norm $||\cdot||$ induced by $\varphi$ is called a Hilbert space.
 \end{definition}
 
+Projection lemma states that there is a unique projection vector in Hilbert space.
+
 \begin{theorem}
-    (Farkas-Minkowski Lemma\cite{gallier2019algebra}) Let $(V,\langle -,- \rangle)$ be a real Hilbert space. For any finite sequence of vectors $(a_1,\cdots,a_m)$ with $a_i\in V$, if C is the polyhedral cone $C=\mathrm{cone}(a_1,\cdots,a_m)$, for any vector $b\in V$, we have $b\notin C$ iff there is a vector $u\in V$ such that
+    (Projection lemma\cite{gallier2019algebra}) Let E be a Hilbert space.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item For any nonempty convex and closed subset $X\subseteq E$, for any $u\in E$, there is a unique vector $p_X(u)\in X$ such that
+            \[
+                ||u-p_X(u)||=\inf_{v\in X} ||u-v||=d(u,X).
+            \]
+        \item The vector $p_X(u)$ is the unique vector $w\in E$ satisfying the following property
+            \[
+                w\in X \quad and \quad \mathfrak R \langle u-w,z-w \rangle \leq 0 \quad \forall z\in X.
+            \]
+        \item If X is a nonempty closed subspace of E then the vector $p_X(u)$ is the unique vector $w\in E$ satisfying the following property:
+            \[
+                w\in X \quad and \quad \langle u-w, z \rangle = 0 \quad \forall z\in X.
+            \]
+    \end{enumerate}
+\end{theorem}
+
+The vector defined in the projection lemma is called a projection.
+
+\begin{definition}
+    (Projection\cite{gallier2019algebra}) The vector $p_X(u)$ is called the projection of u onto X, the map $p_X:E\to X$ is called the projection of E onto X.
+\end{definition}
+
+\begin{definition}
+    (cone of feasible directions\cite{gallier2019algebra}) Let V be a normed vector space and let U be a nonempty subset of V. For any point $u\in U$, the cone $C(u)$ of feasible directions at u is the union of $\{0\}$ and the set of all nonzero vectors $w\in V$ for which there exists some convergent sequence $(u_k)_{k\geq 0}$ of vectors such that
+    \begin{enumerate}[label={(\arabic*)}]
+        \item $u_k\in U$ and $u_k\neq u$ for all $k\geq 0$, and $\lim_{k\to \infty} u_k = u$.
+        \item $\lim_{k\to\infty} \frac{u_k-u}{||u_k-u||} = \frac{w}{||w||}$, with $w\neq 0$.
+    \end{enumerate}
+\end{definition}
+
+Having all the definitions and theorems, we can prove the Farkas-Minkowski lemma which is can be used to prove the correctness of KKT conditions.
+
+\begin{theorem}
+    (Farkas-Minkowski Lemma\cite{gallier2019algebra}) Let $(V,\langle -,- \rangle)$ be a real Hilbert space. For any finite sequence of vectors $(a_1,\cdots,a_m)$ with $a_i\in V$, if C is the polyhedral cone $C=\mathrm{cone}(a_1,\cdots,a_m)=\{ \sum_{i=1}^{m} \lambda_i a_i, \ \lambda_i\in \mathbb R, \ \lambda_i \geq 0\}$, then for any vector $b\in V$, we have $b\notin C$ iff there is a vector $u\in V$ such that
     \[
-        \langle a_i, u\rangle \geq 0 \; i=1,\cdots,m, \; and \; \langle b, u \rangle <0.
+        \langle a_i, u\rangle \geq 0 \quad i=1,\cdots,m \quad and \quad \langle b, u \rangle <0.
     \]
     Equivalently, $b\in C$ if for all $u\in V$,
     \[
-        if \, \langle a_i,u\rangle \geq 0 \; i=1,\cdots,m,\; then \langle b,u\rangle \geq 0.
+        if \quad \langle a_i,u\rangle \geq 0 \quad i=1,\cdots,m\quad then \ \langle b,u\rangle \geq 0.
     \]
 \end{theorem}
+
+\begin{proof}
+    Claim: If C is a nonempty, closed, convex subset of a Hilbert space V, and $b\in V$, and $b\in V$ is any vector such that $b\notin C$, then there exist some $u\in V$ and infinitely many scalars $\alpha\in \mathbb R$ such that
+    \begin{align*}
+        &\forall v\in C, \ \langle v,u\rangle >\alpha \\
+        &\langle b,u\rangle <\alpha \\
+    \end{align*}
+    This claim is proved as follows
+
+    Use projection lemma, since $b\notin C$, $\exists! c=p_C(b)\in C$ such that
+    \[
+        ||b-c||=\inf_{v\in C} || b-v|| >0
+    \]
+    \[
+        \forall v\in C, \quad \langle b-c,v-c \rangle \leq 0 \Leftrightarrow \langle v-c,c-b\rangle \geq 0 \Leftrightarrow \langle v,c-b\rangle\geq\langle c,c-b\rangle
+    \]
+    If we pick $u=c-b$ and some $\alpha<\langle c,c-b\rangle$ such that
+    \[
+        \langle c,c-b\rangle>\alpha>\langle b,c-b\rangle
+    \]
+    the claim is satisfied.
+
+    Then we prove the Farkas-Minkowski lemma using this claim.
+
+    Assume that $b\notin C$. Since C is nonempty, convex and closed, by the claim there is some $u\in V$ and some $\alpha\in \mathbb R$ such that
+    \[
+        \forall v\in C, \langle v,u \rangle >\alpha
+        \langle b,u\rangle <\alpha.
+    \]
+    But C is a polyhedral cone containing 0 which means $\langle v,u\rangle$ can take 0 value, so we have $\alpha<0$. Then for every $v\in C$, since C is a polyhedral cone, $\forall \lambda >0$, if $v\in C$ then $\lambda v\in C$, so we have
+    \begin{center}
+        $\langle v,u\rangle >\frac{\alpha}{\lambda}$ for every $\lambda>0$,
+    \end{center}
+    which implies that
+    \[
+        \langle v,u\rangle\geq 0.
+    \]
+    So considering $a_i\in C$ for $i=1,\cdots,m$, we have 
+    \begin{center}
+        $\langle a_i,u\rangle \geq 0$ $i=1,\cdots,m$ and $\langle b,u\rangle <\alpha<0$,
+    \end{center}
+\end{proof}
+
+From Farkas-Minkowski Lemma, we can easily obtain this specialized theorem. 
+\begin{theorem}
+    (Farkas-Minkowski\cite{gallier2019algebra}) Let V be a Euclidean space of finite dimension with inner product $\langle -,-\rangle$(or a Hilbert space). For any finite family $(a_1,\cdots,a_m)$ of m vectors $a_i\in V$ and any vector $b\in V$, for any $v\in V$,
+    \begin{center}
+        if $\langle a_i, v\rangle \geq 0$ for $i=1,\cdots,m$ implies that $\langle b,v\rangle\geq 0$,
+    \end{center}
+    then there exist $\lambda_1,\cdots,\lambda_m\in \mathbb R$ such that
+    \begin{center}
+        $\lambda_i\geq 0$ for $i=1,\cdots,m$, and $b=\sum\limits_{i=1}^m \lambda_ia_i$,
+    \end{center}
+    that is, b belong to the polyhedral cone $\mathrm{cone} (a_1,\cdots,a_m)$.
+    %If $\forall y\in (\mathbb R^m)^*, yA\geq 0_n^\top \Rightarrow yb\geq 0$, then linear system $Ax=b$ has a solution $x\geq 0$.
+\end{theorem}
+
+If we have a function $J(u)$ which has a constrained minimum $u^*\in U$, we know the derivative of this function around the point $u^*$ should be greater than zero, which is formalized by the following theorem.
+
+\begin{theorem}
+    Let U be any nonempty subset of a normed vector space V.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item For any $u\in U$, the cone $C(u)$ of feasible directions at u is closed.
+        \item Let $J:\Omega\to \mathbb R$ be a function defined on an open subset $\Omega$ containing U. If J has a local minimum with respect to the set U at a point $u\in U$, and if $J^\prime_u$ exists at u, then
+            \[
+                \forall v\in u+C(u),\ J^\prime_u(v-u)\geq 0
+            \]
+    \end{enumerate}
+\end{theorem}
+
+If we have inequality constraints, we can use the following theorem to get the constraints on the derivatives.
+
+\begin{theorem}
+    Let u be any point of the set
+    \[
+        U=\{x\in \Omega|\ \varphi_i(x)\leq0,\ 1\leq i\leq m\},
+    \]
+    where $\Omega$ is an open subset of the normed vector space V, and assume that the functions $\varphi_i$ are differentiable at u for $i\in I(u)$. The the following facts hold:
+    \begin{enumerate}[label={(\arabic*)}]
+        \item The cone $C(u)$ of feasible directions at u is contained in the convex cone $C^*(u)$; that is,
+            \[
+                C(u)\subseteq C^*(u)=\{v\in V|\ (\varphi^\prime_i)_u(v)\leq 0, \ i\in I(u)\}.
+            \]
+        \item If the constraints are qualified at u and the functions $\varphi_i$ are continuous at u for all $i\notin I(u)$ if we only assume $\varphi_i$ differentiable at u for all $i\in I(u)$, then
+            \[
+                C(u)=C^*(u)
+            \]
+    \end{enumerate}
+\end{theorem}
+
+
+Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the above.
+
+\begin{theorem}
+    (Karush-Kuhn-Tucker optimality conditions) Let $\varphi_i:\Omega\to \mathbb R$ be m constraints defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (more generally, a real Hilbert space V), let $J:\Omega\to \mathbb R$ be some function, and let U be given by
+    \[
+        U=\{x\in\Omega|\varphi_i(x)\leq0, \ 1\leq i\leq m\}.
+    \]
+    For any $u\in U$, let 
+    \[
+        I(u)=\{i\in\{1,\cdots,m\}|\varphi_i(u)=0\}.
+    \]
+    and assume that the functions $\varphi_i$ are differentiable at u for all $i\in I(u)$ and continuous at u for all $i\notin I(u)$. If J is differentiable at u, it has a local minimum at u with respect to U, and if the constraints are qualified at u, then there exist some scalars $\lambda_i(u)\in\mathbb R$ for all $i\in I(u)$, such that
+    \begin{center}
+        $J^\prime_u+\sum\limits_{i\in I(u)} \lambda_i(u)(\varphi^\prime_i)_u=0$, and $\lambda_i(u)\geq0$ for all $i\in I(u)$.
+    \end{center}
+    Equivalently, 
+    \begin{center}
+        $\nabla J_u+\sum\limits_{i\in I(u)} \lambda_i(u)\nabla(\varphi_i)_u=0$, and $\lambda_i(u)\geq0$ for all $i\in I(u)$.
+    \end{center}
+\end{theorem}
+\begin{proof}
+    Use Theorem 2.1.4, we have
+    \begin{align}
+        \forall w\in C(u) \ J^\prime_u(w)\geq 0.
+    \end{align}
+    Use Theorem 2.1.5, we have
+    \begin{align}
+        C(u)=C^*(u)=\{ v\in V|\  (\varphi^\prime_i)_u(v)\leq 0, \ i\in I(u)\},
+    \end{align}
+    by (2.1) and (2.2), we have
+    \begin{align}
+        if\ w\in C^*(u)\ then\ J^\prime_u(w)\geq 0,
+    \end{align}
+    
+    Under the music isomorphism $\sharp:V^\prime\to V$, the vector $(J^\prime_u)^\sharp$ is the gradient $\nabla J_u$, so that
+    \begin{align}
+        J^\prime_u(w)=\langle w,\nabla J_u\rangle,
+    \end{align}
+    and the vector $((\varphi^\prime_i)_u)^\sharp$ is the gradient $\nabla(\varphi_i)_u$, so that
+    \begin{align}
+        (\varphi^\prime_i)_u(w)=\langle w,\nabla(\varphi_i)_u\rangle.
+    \end{align}
+    Using (2.4) and (2.5), (2.3) can be rewritten as 
+    \begin{center}
+        $\forall w\in V$, if $\langle w,-\nabla (\varphi_i)_u\rangle \geq 0$ for all $i\in I(u)$, then $\langle w, \nabla J_u\rangle \geq 0$.
+    \end{center}
+    Then we can use Farkas-Minkowski lemma (Theorem 2.1.3). So we have $\forall i\in I(u), \exists \lambda_i(u)\geq 0$, such that
+    \[
+        \nabla J_u = \sum_{i\in I(u)} \lambda_i(u) (-\nabla(\varphi_i)_u) \Leftrightarrow \nabla J_u+\sum_{i\in I(u)}\lambda_i(u)\nabla(\varphi_i)_u = 0
+    \]
+    using the music isomorphism $\sharp$, we get
+    \[
+        J^\prime_u + \sum_{i\in I(u)}\lambda_i(u)(\varphi^\prime_i)_u=0,
+    \]
+\end{proof}
 
 
 
