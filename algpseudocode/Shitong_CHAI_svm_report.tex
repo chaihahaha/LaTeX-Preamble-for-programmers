@@ -12,12 +12,14 @@
 
 \fancyhf{}
 \rhead{\rightmark}
+\cfoot{\thepage}
 
 \geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}[section]
 
 \title{SVM Report}
 \date{}
@@ -35,7 +37,7 @@ To solve a constrained optimization problem with equation constraint, we can use
 with the help of the chain rule, we can get $y^\prime (x)$. But for normed affine spaces, or more specifically, vector spaces, we have to use the following more general version of Implicit function theorem
 
 \begin{theorem}
-    (Implicit function theorem) Let E,F, and G be normed affine spaces, let $\Omega$ be an open subset of $E\times F$, let $f:\Omega\to G$ be a function defined on $\Omega$, let $(a,b)\in \Omega$, let $c\in G$, and assume that $f(a,b)=c$. If the following assumptions hold
+    (Implicit function theorem\cite{gallier2019algebra}) Let E,F, and G be normed affine spaces, let $\Omega$ be an open subset of $E\times F$, let $f:\Omega\to G$ be a function defined on $\Omega$, let $(a,b)\in \Omega$, let $c\in G$, and assume that $f(a,b)=c$. If the following assumptions hold
     \begin{enumerate}[label={(\arabic*)}]
         \item The function $f:\Omega\to G$ is continuous on $\Omega$;
         \item F and G are complete normed affine space
@@ -65,7 +67,7 @@ A necessary condition to find the constrained extrema is Lagrange multipliers.
 More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a product of normed vector spaces and $U=\{(u_1,u_2)\in\Omega | \varphi(u_1,u_2)=0\}$ for a continuous function $\varphi:\Omega\to E_2$, the following condition holds.
 
 \begin{theorem}
-    (Necessary condition for a constrained extremum) Let $\Omega\subseteq E_1 \times E_2$ be an open subset of a product of normed vector spaces, with $E_1$ a Banach space, let $\varphi: \Omega\to E_2$ be a $C^1$-function, and let
+    (Necessary condition for a constrained extremum\cite{gallier2019algebra}) Let $\Omega\subseteq E_1 \times E_2$ be an open subset of a product of normed vector spaces, with $E_1$ a Banach space, let $\varphi: \Omega\to E_2$ be a $C^1$-function, and let
 
     \[
         U=\{(u_1,u_2)\in \Omega | \varphi (u_1, u_2)=0\}.
@@ -148,7 +150,7 @@ Lagrange multiplier method is just the special case of Theorem 1.1.2 when $E_1=\
 Then we have the necessary condition for a constrained extremum in terms of Lagrange multipliers
 
 \begin{theorem}
-    (Necessary condition for a constrained extremum in terms of Lagrange multipliers) Let $\Omega$ be an open subset of $\mathbb R^n$, for m functions $\varphi_i\in C^1:\Omega\to\mathbb R$ with $1\leq m < n$, let
+    (Necessary condition for a constrained extremum in terms of Lagrange multipliers\cite{gallier2019algebra}) Let $\Omega$ be an open subset of $\mathbb R^n$, for m functions $\varphi_i\in C^1:\Omega\to\mathbb R$ with $1\leq m < n$, let
     \[
         U=\{v\in\Omega|\varphi_i(v)=0,1\leq i\leq m\},
     \]
@@ -162,7 +164,7 @@ Then we have the necessary condition for a constrained extremum in terms of Lagr
     \]
 \end{theorem}
 \begin{proof}
-    Use Theorem 1.1.2 to proof. Notice that this theorem is a special case of Theorem where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
+    Use Theorem 1.1.2 to proof. Notice that this theorem is a special case of Theorem 1.1.2 where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
     \[
         dJ(u)+\Lambda(u)\circ d\varphi(u)=0
     \]
@@ -201,6 +203,28 @@ equivalently,
 
 \chapter{KKT conditions, Dual problem, Slater's conditions}
 \section{The KKT Conditions}
+
+\begin{definition}
+    (Hermitian form\cite{gallier2019algebra}) If a function $\varphi :E\times E\to \mathbb C$ is sesquilinear and $\forall u,v\in E$, we have $\varphi(v,u)=\overline{\varphi(u,v)}$, then it is a Hermitian form.
+\end{definition}
+\begin{definition}
+    (Hermitian Space\cite{gallier2019algebra}) Given a complex vector space E, a Hermitian form $\varphi:E\times E\to \mathbb C$ is positive of $\varphi(u,u)\geq 0$ for all $u\in E$, and positive definite if $\varphi(u,u)>0$ for all $u\neq 0$. A pair $\langle E,\varphi \rangle$ where E is a complex vector space and $\varphi$ is a Hermitian form on E is called a pre-Hilbert space if $\varphi$ is positive, and a Hermitian space if $\varphi$ is positive definite.
+\end{definition}
+
+\begin{definition}
+    (Hilbert Space\cite{gallier2019algebra}) A (complex) Hermitian space $\langle E,\varphi \rangle$ which is a complete normed vector space under the norm $||\cdot||$ induced by $\varphi$ is called a Hilbert space.
+\end{definition}
+
+\begin{theorem}
+    (Farkas-Minkowski Lemma\cite{gallier2019algebra}) Let $(V,\langle -,- \rangle)$ be a real Hilbert space. For any finite sequence of vectors $(a_1,\cdots,a_m)$ with $a_i\in V$, if C is the polyhedral cone $C=\mathrm{cone}(a_1,\cdots,a_m)$, for any vector $b\in V$, we have $b\notin C$ iff there is a vector $u\in V$ such that
+    \[
+        \langle a_i, u\rangle \geq 0 \; i=1,\cdots,m, \; and \; \langle b, u \rangle <0.
+    \]
+    Equivalently, $b\in C$ if for all $u\in V$,
+    \[
+        if \, \langle a_i,u\rangle \geq 0 \; i=1,\cdots,m,\; then \langle b,u\rangle \geq 0.
+    \]
+\end{theorem}
 
 
 
