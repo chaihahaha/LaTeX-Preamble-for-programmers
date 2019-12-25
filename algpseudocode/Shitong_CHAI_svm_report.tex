@@ -42,7 +42,7 @@ with the help of the chain rule, we can get $y^\prime (x)$. But for normed affin
         \item The function $f:\Omega\to G$ is continuous on $\Omega$;
         \item F and G are complete normed affine space
         \item $\frac{\partial f}{\partial y}(x,y)$ exists for every $(x,y)\in \Omega$, and $\frac{\partial f}{\partial y}:\Omega\to\mathcal L (\vec F;\vec G)$ is continuous;
-        \item $\frac{\partial f}{\partial y}(a,b)$ is a bijection of $\mathcal L (\vec F;\vec G)$, and $\left(\frac{\partial f}{\partial y}(a,b)\right)^{-1} \mathcal L (\vec G;\vec F)$
+        \item $\frac{\partial f}{\partial y}(a,b)$ is a bijection of $\mathcal L (\vec F;\vec G)$, and $\left(\frac{\partial f}{\partial y}(a,b)\right)^{-1} \in \mathcal L (\vec G;\vec F)$
     \end{enumerate}
     then the following properties hold:
     \begin{enumerate}[label={(\alph*)}]
@@ -396,7 +396,7 @@ Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the a
         if\ w\in C^*(u)\ then\ J^\prime_u(w)\geq 0,
     \end{align}
     
-    Under the music isomorphism $\sharp:V^\prime\to V$, the vector $(J^\prime_u)^\sharp$ is the gradient $\nabla J_u$, so that
+    Under the musical isomorphism $\sharp:V^\prime\to V$, the vector $(J^\prime_u)^\sharp$ is the gradient $\nabla J_u$, so that
     \begin{align}
         J^\prime_u(w)=\langle w,\nabla J_u\rangle,
     \end{align}
@@ -412,7 +412,7 @@ Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the a
     \[
         \nabla J_u = \sum_{i\in I(u)} \lambda_i(u) (-\nabla(\varphi_i)_u) \Leftrightarrow \nabla J_u+\sum_{i\in I(u)}\lambda_i(u)\nabla(\varphi_i)_u = 0
     \]
-    using the music isomorphism $\sharp$, we get
+    using the musical isomorphism $\sharp$, we get
     \[
         J^\prime_u + \sum_{i\in I(u)}\lambda_i(u)(\varphi^\prime_i)_u=0,
     \]
