@@ -60,17 +60,19 @@ with the help of the chain rule, we can get $y^\prime (x)$. But for normed affin
     \end{enumerate}
 \end{theorem}
 
-Given a real-valued function $J:\Omega\to\mathbb R$ defined on open set $\Omega\subseteq E$, where $E$ is a normed vector space and $U=\{x\in\Omega | \varphi_i(x)=0, 1\leq i\leq m\}$ (where the functions $\varphi_i:\Omega\to\mathbb R$ are continuous), then $J$ has a local extremum at the point $u\in U$ with respect to $U$.
+Notice that implicit function theorem holds for affine spaces $E=(E,\vec E,+)$, where $\vec E$ is a vector space associated with point set $E$. And $\frac{\partial f}{\partial y}(x,y)\in \mathcal L (\vec F;\vec G)$ is a linear form from vector space $\vec F$ to vector space $\vec G$, not a map from point set $F$ to point set $G$.
+
+Given a real-valued function $J:\Omega\to\mathbb R$ defined on open set $\Omega\subseteq E$, where $E$ is a normed vector space and $U=\{x\in\Omega |\ \varphi_i(x)=0, 1\leq i\leq m\}$ (where the functions $\varphi_i:\Omega\to\mathbb R$ are continuous), then $J$ has a local extremum at the point $u\in U$ with respect to $U$.
 
 A necessary condition to find the constrained extrema is Lagrange multipliers.
 
-More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a product of normed vector spaces and $U=\{(u_1,u_2)\in\Omega | \varphi(u_1,u_2)=0\}$ for a continuous function $\varphi:\Omega\to E_2$, the following condition holds.
+More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a product of normed vector spaces and feasible region defined by equation constriants $U=\{(u_1,u_2)\in\Omega |\  \varphi(u_1,u_2)=0\}$ for a continuous function $\varphi:\Omega\to E_2$, the following condition holds.
 
 \begin{theorem}
     (Necessary condition for a constrained extremum\cite{gallier2019algebra}) Let $\Omega\subseteq E_1 \times E_2$ be an open subset of a product of normed vector spaces, with $E_1$ a Banach space, let $\varphi: \Omega\to E_2$ be a $C^1$-function, and let
 
     \[
-        U=\{(u_1,u_2)\in \Omega | \varphi (u_1, u_2)=0\}.
+        U=\{(u_1,u_2)\in \Omega |\ \varphi (u_1, u_2)=0\}.
     \]
 
     Moreover, let $u=(u_1,u_2)\in U$ be a point such that
@@ -143,7 +145,7 @@ More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a prod
 Lagrange multiplier method is just the special case of Theorem 1.1.2 when $E_1=\mathbb R^{n-m}$ and $E_2=\mathbb R^m$, $1\leq m < n\in \mathbb N$, $\Omega\subseteq\mathbb R^n$ is an open set, $J:\Omega\to\mathbb R$ and for $m$ functions $\varphi_i:\Omega\to\mathbb R$, we have $U\subseteq \Omega$
 
 \[
-    U=\{v\in\Omega|\varphi_i(v)=0,1\leq i\leq m\}
+    U=\{v\in\Omega|\ \varphi_i(v)=0,1\leq i\leq m\}
 \]
 
 Then we have the necessary condition for a constrained extremum in terms of Lagrange multipliers
@@ -151,7 +153,7 @@ Then we have the necessary condition for a constrained extremum in terms of Lagr
 \begin{theorem}
     (Necessary condition for a constrained extremum in terms of Lagrange multipliers\cite{gallier2019algebra}) Let $\Omega$ be an open subset of $\mathbb R^n$, for m functions $\varphi_i\in C^1:\Omega\to\mathbb R$ with $1\leq m < n$, let
     \[
-        U=\{v\in\Omega|\varphi_i(v)=0,1\leq i\leq m\},
+        U=\{v\in\Omega|\ \varphi_i(v)=0,1\leq i\leq m\},
     \]
     and let $u\in U$ such that $d\varphi_i(u)\in\mathcal L(\mathbb R^n;\mathbb R)$ are linearly independent. If $J:\Omega\to \mathbb R$ is a differentiable function at $u\in U$ and if J has a local constrained extremum at u, then $\exists!$ $\lambda_i(u)\in\mathbb R$, $i=1,2,\cdots,m$, such that
     \[
@@ -251,6 +253,8 @@ The vector defined in the projection lemma is called a projection.
     (Projection\cite{gallier2019algebra}) The vector $p_X(u)$ is called the projection of u onto X, the map $p_X:E\to X$ is called the projection of E onto X.
 \end{definition}
 
+For the sake of simplicity in notation, we will define the cone of feasible directions. Cone of feasible directions of point $u$ is just the affine translation of the subspace of vector space which is all the directions that a vector starting from point $u$ can take.
+
 \begin{definition}
     (cone of feasible directions\cite{gallier2019algebra}) Let V be a normed vector space and let U be a nonempty subset of V. For any point $u\in U$, the cone $C(u)$ of feasible directions at u is the union of $\{0\}$ and the set of all nonzero vectors $w\in V$ for which there exists some convergent sequence $(u_k)_{k\geq 0}$ of vectors such that
     \begin{enumerate}[label={(\arabic*)}]
@@ -316,9 +320,9 @@ Having all the definitions and theorems, we can prove the Farkas-Minkowski lemma
 
 From Farkas-Minkowski Lemma, we can easily obtain this specialized theorem. 
 \begin{theorem}
-    (Farkas-Minkowski\cite{gallier2019algebra}) Let V be a Euclidean space of finite dimension with inner product $\langle -,-\rangle$(or a Hilbert space). For any finite family $(a_1,\cdots,a_m)$ of m vectors $a_i\in V$ and any vector $b\in V$, for any $v\in V$,
+    (Farkas-Minkowski\cite{gallier2019algebra}) Let V be a Euclidean space of finite dimension with inner product $\langle -,-\rangle$(or a Hilbert space). For any finite family $(a_1,\cdots,a_m)$ of m vectors $a_i\in V$ and any vector $b\in V$, if for any $v\in V$,
     \begin{center}
-        if $\langle a_i, v\rangle \geq 0$ for $i=1,\cdots,m$ implies that $\langle b,v\rangle\geq 0$,
+        if $\langle a_i, v\rangle \geq 0$ for $i=1,\cdots,m$ then $\langle b,v\rangle\geq 0$,
     \end{center}
     then there exist $\lambda_1,\cdots,\lambda_m\in \mathbb R$ such that
     \begin{center}
@@ -328,7 +332,7 @@ From Farkas-Minkowski Lemma, we can easily obtain this specialized theorem.
     %If $\forall y\in (\mathbb R^m)^*, yA\geq 0_n^\top \Rightarrow yb\geq 0$, then linear system $Ax=b$ has a solution $x\geq 0$.
 \end{theorem}
 
-If we have a function $J(u)$ which has a constrained minimum $u^*\in U$, we know the derivative of this function around the point $u^*$ should be greater than zero, which is formalized by the following theorem.
+If we have a function $J(u)$ which has a constrained minimum $u\in U$, we know the derivative of this function around the point $u$ in the direction of all the feasible directions should be greater than zero, otherwise there will be a smaller value around $u$ which means $u$ is not a constrained minimum anymore. This is formalized by the following theorem.
 
 \begin{theorem}
     Let U be any nonempty subset of a normed vector space V.
@@ -348,7 +352,8 @@ If we have inequality constraints, we can use the following theorem to get the c
     \[
         U=\{x\in \Omega|\ \varphi_i(x)\leq0,\ 1\leq i\leq m\},
     \]
-    where $\Omega$ is an open subset of the normed vector space V, and assume that the functions $\varphi_i$ are differentiable at u for $i\in I(u)$. The the following facts hold:
+    where $\Omega$ is an open subset of the normed vector space V, and assume that the functions $\varphi_i$ are differentiable at u for $i\in I(u)=\{i\in\{1,\cdots,m\}|\ \varphi_i(u)=0\}$
+. The the following facts hold:
     \begin{enumerate}[label={(\arabic*)}]
         \item The cone $C(u)$ of feasible directions at u is contained in the convex cone $C^*(u)$; that is,
             \[
@@ -367,11 +372,11 @@ Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the a
 \begin{theorem}
     (Karush-Kuhn-Tucker optimality conditions) Let $\varphi_i:\Omega\to \mathbb R$ be m constraints defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (more generally, a real Hilbert space V), let $J:\Omega\to \mathbb R$ be some function, and let U be given by
     \[
-        U=\{x\in\Omega|\varphi_i(x)\leq0, \ 1\leq i\leq m\}.
+        U=\{x\in\Omega|\ \varphi_i(x)\leq0, \ 1\leq i\leq m\}.
     \]
     For any $u\in U$, let 
     \[
-        I(u)=\{i\in\{1,\cdots,m\}|\varphi_i(u)=0\}.
+        I(u)=\{i\in\{1,\cdots,m\}|\ \varphi_i(u)=0\}.
     \]
     and assume that the functions $\varphi_i$ are differentiable at u for all $i\in I(u)$ and continuous at u for all $i\notin I(u)$. If J is differentiable at u, it has a local minimum at u with respect to U, and if the constraints are qualified at u, then there exist some scalars $\lambda_i(u)\in\mathbb R$ for all $i\in I(u)$, such that
     \begin{center}
@@ -412,7 +417,7 @@ Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the a
     \[
         \nabla J_u = \sum_{i\in I(u)} \lambda_i(u) (-\nabla(\varphi_i)_u) \Leftrightarrow \nabla J_u+\sum_{i\in I(u)}\lambda_i(u)\nabla(\varphi_i)_u = 0
     \]
-    using the musical isomorphism $\sharp$, we get
+    using the musical isomorphism $\flat=\sharp^{-1}:V\to V^\prime$, we get
     \[
         J^\prime_u + \sum_{i\in I(u)}\lambda_i(u)(\varphi^\prime_i)_u=0,
     \]
