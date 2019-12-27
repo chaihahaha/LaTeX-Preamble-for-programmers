@@ -621,55 +621,55 @@ The proof is long but the idea of the theorem is not surprising, we have seen si
 
 A Support Vector Machine is a classifier that maximizes the margin between the separating hyperplane and supporting vectors\cite{cortes1995support}, which is an optimization problem 
 \begin{align*}
-    &\min \frac{1}{2}||w||^2\\
-    &s.t. \ y_i(w^\top x_i+b)\geq 1, \ i=1,\cdots,m
+    &\min& & \frac{1}{2}||w||^2 \label{svmhard}\tag{$\mathrm{SVM_{hard}}$}\\
+    &s.t.& & \ y_i(w^\top x_i+b)\geq 1, \ i=1,\cdots,m
 \end{align*}
 where $x_i\in \mathbb R^d$ is a $d$-dimensional data point in a linear separable dataset which has $m$ data points, $y_i$ is the label of point $x_i$. $w\in \mathbb R^n$ and $b$ are the coefficient of the constraint affine function, in other words, the separating hyperplane or support vector machine. 
 
 Obviously, this is the inequality constraint optimization problem we discussed in the previous chapter, so we write the Lagrangian
 \[
-    L(w,b,k)=\frac{||w||^2}{2}+\sum_{i=1}^m k_i(1-y_i(w^\top x_i+b))
+    L(w,b,a)=\frac{||w||^2}{2}+\sum_{i=1}^m a_i(1-y_i(w^\top x_i+b))
 \]
-where $w=(w_1,\cdots,w_d)^\top$, $k=(k_1,\cdots,k_m)^\top\in\mathbb R_+^m$.
+where $w=(w_1,\cdots,w_d)^\top$, $a=(a_1,\cdots,a_m)^\top\in\mathbb R_+^m$.
 
 Then we have the primal problem $P$ and dual problem $D$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
 
 \begin{align}
-    &\min_{w,b} \max_{k\in\mathbb R_+^m} L(w,b,k) \tag{P}\\
-    &\max_{k\in\mathbb R_+^m} \min_{w,b} L(w,b,k) \tag{D}
+    &\min_{w,b} \max_{a\in\mathbb R_+^m} L(w,b,a) \tag{P}\\
+    &\max_{a\in\mathbb R_+^m} \min_{w,b} L(w,b,a) \tag{D}
 \end{align}
 
 For the problem $D$, we write explicitly the inner function
 \begin{align}
-    \min_{w,b} L(w,b,k)=\min_{w,b}[\frac{1}{2}||w||^2+\sum_{i=1}^m k_i(1-y_i(w^\top x_i+b))]
+    \min_{w,b} L(w,b,a)=\min_{w,b}[\frac{1}{2}||w||^2+\sum_{i=1}^m a_i(1-y_i(w^\top x_i+b))]
 \end{align}
 Use KKT condition\ref{kkt1}, we have
 \begin{align}
-    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m k_i y_i x_i\\
-    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m k_i y_i
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m a_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m a_i y_i
 \end{align}
 
 Substitute formula (3.2) and (3.3) back to (3.1), we have
 \begin{align}
-    \min_{w,b} L(w,b,k) = \frac{1}{2}\left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right) + \sum_{i=1}^m k_i - \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \min_{w,b} L(w,b,a) = \frac{1}{2}\left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right) + \sum_{i=1}^m a_i - \sum_{i=1}^m\sum_{j=1}^m a_i k_j y_i y_j x_i^\top x_j
 \end{align}
 
 Expand the first term, we have 
 
 \begin{align}
-    \left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
 \end{align}
 Substitute (3.5) back to (3.4), we have
 
 \begin{align}
-    \min_{w,b} L(w,b,k) = \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \min_{w,b} L(w,b,a) = \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
 \end{align}
 
 Then we substitute function (3.6) back to problem $D$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P$
 \begin{align*}
-    &\max_k & & \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j \\
-    &s.t. \ & & \sum_{i=1}^m k_i y_i=0 \\
-    & & & k_j\geq 0,\ i=1,\cdots,m
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j \\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & a_j\geq 0,\ i=1,\cdots,m
 \end{align*}
 
 
@@ -679,66 +679,148 @@ The hard margin support vector machine has a very strict requirement on the data
 
 To better solve problems in non linear separable datasets, we have to introduce Soft Margin Support Vector Machine which allow the separating hyperplane to make mistakes sometimes.
 
-Introduce slackness variables $s=(s_1,\cdots,s_m)^\top\in\mathbb R_+^m$, so the optimization problem is
+Introduce slack variables $s=(s_1,\cdots,s_m)^\top\in\mathbb R_+^m$, so the optimization problem is
 \begin{align*}
-    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \\
-    &s.t. & & y_i(w^\top x_i +b)\geq 1 - s_i \\
-    &     & & s_i\geq 0, \ i=1,\cdots,m
+    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \label{svmsoft}\tag{$\mathrm{SVM_{soft}}$} \\
+    &s.t. & & s_i  \geq 1 - y_i(w^\top x_i +b)\\
+    &     & & s_i \geq 0, \ i=1,\cdots,m
 \end{align*}
 
 Similar to what we did in the previous section, we have a generalized Lagrangian
 \begin{align}
-    L(w,b,k,s,u) = \frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m k_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i
+    L(w,b,a,s,u) = \frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m a_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i
 \end{align}
 
 Then we have the primal problem $P'$ and dual problem $D'$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
 
 \begin{align}
-    &\min_{w,b,s} \ \max_{k\in\mathbb R_+^m,u\in\mathbb R_+^m} L(w,b,k,s,u) \tag{P'}\\
-    &\max_{k\in\mathbb R_+^m,u\in\mathbb R_+^m} \ \min_{w,b,s} L(w,b,k,s,u) \tag{D'}
+    &\min_{w,b,s} \ \max_{a\in\mathbb R_+^m,u\in\mathbb R_+^m} L(w,b,a,s,u) \tag{P'}\\
+    &\max_{a\in\mathbb R_+^m,u\in\mathbb R_+^m} \ \min_{w,b,s} L(w,b,a,s,u) \tag{D'}
 \end{align}
 
 For the problem $D'$, we write explicitly the inner function
 \begin{align}
-    \min_{w,b,s} L(w,b,k,s,u)=\min_{w,b,s}[\frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m k_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i]
+    \min_{w,b,s} L(w,b,a,s,u)=\min_{w,b,s}[\frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m a_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i]
 \end{align}
 Use KKT condition\ref{kkt1}, we have
 \begin{align}
-    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m k_i y_i x_i\\
-    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m k_i y_i \\
-    &\frac{\partial L}{\partial s}=0\Rightarrow 0=C-k_i-u_i
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m a_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m a_i y_i \\
+    &\frac{\partial L}{\partial s}=0\Rightarrow 0=C-a_i-u_i
 \end{align}
 
 Substitute formula (3.9), (3.10) and (3.11) back to (3.8), we have 
 \begin{align}
-    \min_{w,b,s} L(w,b,k,s,u) = \frac{1}{2}\left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right) + \sum_{i=1}^m k_i - \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \min_{w,b,s} L(w,b,a,s,u) = \frac{1}{2}\left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right) + \sum_{i=1}^m a_i - \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
 \end{align}
 
 Expand the first term, we have 
 
 \begin{align}
-    \left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \left( \sum_{i=1}^m a_i y_i a_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
 \end{align}
 Substitute (3.13) back to (3.12), we have
 
 \begin{align}
-    \min_{w,b,s} L(w,b,k,s,u) = \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+    \min_{w,b,s} L(w,b,a,s,u) = \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
 \end{align}
+
+Since we have $u_i\geq 0$, by (3.11) we have $C-a_i\geq 0$.
 
 Then we substitute function (3.14) back to problem $D'$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P'$
 
 \begin{align*}
-    &\max_k & & \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j \\
-    &s.t. \ & & \sum_{i=1}^m k_i y_i=0 \\
-    & & & k_j\geq 0\\
-    & & & C-k_i-u_i=0,\ i=1,\cdots,m 
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j \label{softsvmd}\tag{$\mathrm{SVM_{soft} dual}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m \tag{(Box Constraint)}
 \end{align*}
 
 \section{Hinge Loss}
+
+A function called hinge loss function is frequently used in the optimization algorithms of SVM. Using hinge loss function, the optimization problem of minimizing soft margin between separating hyperplane can be rewritten into a much more concise form. And with the help of hinge loss, we don't have to build a new optimization algorithm based on the dual problem, we can just rewrite the optimization problem in the language of hinge loss and use a common QP or SOCP solver to solve it.
+
+The formula of hinge loss function is
+\begin{align}
+    l(y,\hat y)=\max(0,1-y\hat y)
+\end{align}
+Notice that we have
+\begin{align}
+    &l(w^\top x_i+b,\hat y_i) \geq 0 \\
+    &l(w^\top x_i+b,\hat y_i) =\max(0,1-y_i(w^\top x_i+b))\geq 1-y_i(w^\top x_i+b)
+\end{align}
+
+which is exactly the constraints of slack variable $s_i$ in soft margin SVM (\ref{svmsoft})!
+
+So we can rewrite the soft margin SVM optimization problem as an unconstrained optimization problem.
+
+\begin{align*}
+    &\min & C \sum_{i=1}^m l(w^\top x_i+b, y_i) + \frac{1}{2}||w||^2 
+\end{align*}
+
+With the help of gradient descent algorithm or other optimization problem, we can find a local minimum solution easily.
+
 \section{Kernel method}
+
+The common linear hard margin SVM or soft margin SVM can only give a linear separating hyperplane, which means that when dealing with datasets with non-linearity, linear SVM will suffer from bad performance.
+
+There are two different approaches to solve this problem, the first one is by preprocessing the dataset with Kernel Principal Component Analysis method to add non-linearity to it. Another one is SVM with kernel.
+
+The approach to increase dimensionality to the dataset was explored in \cite{cortes1995support}. When the dimensionality of feature space is more than 33000, the raw error becomes much lower and the raw error never increase with higher dimensionality. Although this approach is intuitive and easy to implement, the dataset with a very high dimensionality sometimes will take up too much memory which will cause trouble when training a SVM on it. 
+
+The other approach called SVM with kernel, however, is much more commonly used.
+
+The reason why SVM with kernel can be used without causing serious problems is explained by several theorems in the following.
+
+\begin{theorem}
+    (Cover's Theorem\cite{cover1965geometrical}) The probability to linearly separate N points in a d-dimensional space is
+    \[
+        p(d,N)=\frac{2\sum_{i=0}^mC_{N-1}^i}{2^N}=\left\{ 
+        \begin{aligned}
+            &\frac{\sum_{i=1}^dC^i_{N-1}}{2^{N-1}},\ \ &N>d+1 \\ &1,\ \ &N\le d+1
+        \end{aligned} \right.
+    \]
+    where $m=\min(d,N-1)$.
+\end{theorem}
+
+\begin{theorem}
+    (Mercer's Theorem\cite{mercer1909functions}) If $k(x_i,x_j)$ is a symmetric function ($k(x_i,x_j)=k(x_j,x_i)$), then it is a inner product in a Hilbert space if for any square integrable function $g$, we have
+    \[
+        \int k(x_i,x_j)g(x_i)g(x_j)dx_idx_j \geq 0.
+    \]
+\end{theorem}
+
+\begin{theorem}
+    (Riesz representation theorem\cite{riesz1907espèce}) If $\mathcal H$ is a Reproducing Kernel Hilbert Space by kernel function $k(x_i,x_j)$, $||\cdot||_{\mathcal H}$ is a norm in $\mathcal H$, then for any function $C$ that increase monotonically and any non-negative loss function $L$, the solution of optimization problem
+    \[
+        \min_{h\in\mathcal H} L(h(x_1),\cdots,h(x_n))+C(||h||_{\mathcal H})
+    \]
+    can be represented by a linear combination of kernel function $k$ as
+    \[
+        h^*(x)=\sum_{i=1}^n a_i k(x,x_i)
+    \]
+\end{theorem}
+
+
+The main idea of SVM with kernel is to use a kernel function to map the original features to a higher dimensional feature space. With Cover Theorem, we know that the higher the dimension, the easier to linearly separate data points. Notice that the proof of Theorem 2.2.1 also holds for real Hilbert space, so all the deductions in Section 3.1 and Section 3.2 also hold for real Hilbert space. Then we can replace $x_i^\top x_j$ with $\langle x_i,x_j \rangle$ (where the inner product $\langle -,-
+    \rangle$ is defined with a kernel function $k(x_1,x_2)=\langle x_1,x_2\rangle$ in a Hilbert space called Reproducing Kernel Hilbert Space), and the result 
+\begin{align*}
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle \label{softsvmk}\tag{$\mathrm{SVM_{soft} kernel}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m 
+\end{align*}
+
+also holds. 
+
+The kernel function have to be symmetrical and positive definite to satisfy Definition 2.1.1 and Mercer's theorem.
+
+Actually, kernel method not only can be applied to SVM, but also many other optimization problems with a monotonically increasing regularization term according to Riesz representation theorem.
+\section{SMO algorithm}
+
 \section{Support Vector Regression}
 \section{Support Vector Clustering}
-\chapter{Vapnik-Chervonenkis dimension and structural risk minimization}
+\chapter{Generalization ability of SVM}
+\section{Vapnik-Chervonenkis dimension}
+\section{Structural risk minimization}
 \chapter{Conclusion}
 
 \bibliography{mybib}{}
