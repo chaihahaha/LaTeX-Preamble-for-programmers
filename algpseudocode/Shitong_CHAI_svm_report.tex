@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{report}
+\documentclass[a4paper]{report}
 \usepackage{amsmath, amsthm, amsfonts}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
@@ -161,7 +161,7 @@ Then we have the necessary condition for a constrained extremum in terms of Lagr
     \]
     equivalently,
     \[
-        \nabla J(u)+\lambda_1(u)\nabla\varphi_1(u)+\cdots+\lambda_1(u)\nabla\varphi_1(u)=0.
+        \nabla J(u)+\lambda_1(u)\nabla\varphi_1(u)+\cdots+\lambda_m(u)\nabla\varphi_m(u)=0.
     \]
 \end{theorem}
 \begin{proof}
@@ -202,8 +202,8 @@ equivalently,
 \]
 
 
-\chapter{KKT conditions, Dual problem, Slater's conditions}
-\section{The KKT Conditions}
+\chapter{KKT conditions, Slater's conditions, Dual problem}
+\section{Introduction to nonlinear optimization}
 In order to keep the generality, we should talk in the context of Hilbert space. To define Hilbert space, we will firstly define Hermitian form, then Hermitian space, which is the generalization of the concept of Euclidean space to complex field.
 
 Hermitian form is a special complex vector function.
@@ -366,8 +366,9 @@ If we have inequality constraints, we can use the following theorem to get the c
     \end{enumerate}
 \end{theorem}
 
+\section{KKT conditions and Slater's conditions}
 
-Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the above.
+Given all the theorems and definitions in Section 2.1, we can get Karush-Kuhn-Tucker optimality conditions and Slater conditions.
 
 \begin{theorem}
     (Karush-Kuhn-Tucker optimality conditions) Let $\varphi_i:\Omega\to \mathbb R$ be m constraints defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (more generally, a real Hilbert space V), let $J:\Omega\to \mathbb R$ be some function, and let U be given by
@@ -423,13 +424,320 @@ Then we can get Karush-Kuhn-Tucker optimality conditions using theorems in the a
     \]
 \end{proof}
 
+For the sake of simplicity, we can also refer to the index set $I(u)$ by an additional constraint, so we have \emph{KKT conditions}.
+
+\begin{align}
+    &J^\prime_u+\sum_{i=1}^m\lambda_i(u)(\varphi^\prime_i)_u=0 \tag{$\mathrm{KKT}_1$} \label{kkt1}\\
+    &\lambda_i(u)\varphi_i(u)=0,\ \lambda_i(u)\geq 0,\ i=1,\cdots,m. \tag{$\mathrm{KKT}_2$} \label{kkt2}
+\end{align}
+
+Note that the second conditions \ref{kkt2}, is called \emph{complementary slackness} conditions because if constraint $\varphi_i$ is inactive at $u$, then $\lambda_i(u)=0$; if $\lambda_i(u)\neq 0$, then the constraint $\varphi_i$ is active at $u$, just like then slackness conditions in linear programs. The scalars $\lambda_i(u)$ are called \emph{generalized Lagrange multipliers}.
+
+Given a point $u$ in the feasible region, we want to know if the boundary defined by the constraints behaves nicely and has no singularity, which means the dual multipliers $\lambda_i(u)=0$, so we need the conditions for the qualification of constraints. If all of the constraints are affine, then they are qualified, but if the constraints are non-affine, we need additional specification of the constraints, that is, the functions $\varphi_i$ have to be \emph{convex}.
+
+\begin{definition}
+    (Slater's conditions) Let $U\subseteq \Omega \subseteq V$ given by 
+    \[
+        U=\{x\in\Omega|\ \varphi_i(x)\leq 0,\ 1\leq i\leq m\},
+    \]
+    where $\Omega$ is an open subset of the Euclidean vector space V. If the functions $\varphi_i:\Omega\to \mathbb R$ are convex, we say that the constraints are \emph{qualified} if the following conditions hold
+    \begin{enumerate}[label={(\alph*)}]
+        \item Either the constraints $\varphi_i$ are affine for all $i=1,\cdots,m$ and $U\neq \emptyset $, or
+        \item There is some vector $v\in \Omega$ such that the following conditions hold for $i=1,\cdots,m$
+            \begin{enumerate}[label={(\roman*)}]
+                \item $\varphi_i(v)\leq 0$.
+                \item If $\varphi_i$ is not affine, then $\varphi_i(v)<0$.
+            \end{enumerate}
+    \end{enumerate}
+\end{definition}
+
+The qualification conditions in the above are known as \emph{Slater's conditions}
+
+The following theorem is another version of KKT conditions for convex constraints.
+
+\begin{theorem}
+    (KKT conditions for convex constraints) Let $\varphi_i:\Omega\to \mathbb R$ be m convex constraints defined on some open convex subset $\Omega$ f a finite-dimensional Euclidean vector space V, let $J:\Omega\to\mathbb R$ be some function, let U be given by
+    \[
+        U=\{x\in\Omega|\ \varphi_i(x)\leq0, \ 1\leq i\leq m\}.
+    \]
+    and let $u\in U$ be any point such that the functions $\varphi_i$ and J are differentiable at u.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item If J has a local minimum at u w.r.t. U, and if the constraints are qualified, then there exist some scalars $\lambda_i(u)\in\mathbb R$, such that the KKT conditions hold:
+            \[
+                J^\prime_u+\sum_{i=1}^m\lambda_i(u)(\varphi^\prime_i)_u=0
+            \]
+            \[
+                \sum_{i=1}^m\lambda_i(u)\varphi_i(u)=0,\ \lambda_i(u)\geq 0,\ i=1,\cdots,m.
+            \]
+        \item Conversely, if the restriction of J to U is convex and if there exist scalars $(\lambda_1,\cdots,\lambda_m)\in\mathbb R_+^m$ such that the KKT conditions hold, then the function J has a local minimum at u w.r.t. U.
+    \end{enumerate}
+\end{theorem}
+
+In addition to convex constraints, if the function $J$ is also convex, then KKT conditions will be sufficient to find a local minimum.
+
+According to the theorem in the above, we can introduce the \emph{generalized Lagrangian} $L:\Omega\times\mathbb R^m_+\to \mathbb R$ given by
+\[
+    L(v,\lambda)=J(v)+\sum_{i=1}^m\lambda_i\varphi_i(v),
+\]
+
+Then for a minimization problem
+\begin{align*}
+    &\min J(v) \\
+    &s.t.\ \varphi_i(v)\leq 0,\ i=1,\cdots,m.
+\end{align*}
+
+can be solved by the following conditions
+
+\begin{align}
+    &\frac{\partial L}{\partial u}(u)=0 \label{kktderi}\\
+    &J(u)=L(u,\lambda)
+\end{align}
+
+Then the constrained minimization problem is transformed into an unconstrained minimization problem of the function $L(v,\lambda)$.
+
+We can even absorb the inequality constraints into the generalized Lagrangian by the following unconstrained optimization problem.
+\[
+    \min_v \max_{\lambda\in\mathbb R_+^m} L(v,\lambda)
+\]
+
+%Denote $\max_{\lambda\in\mathbb R_+^m} L(v,\lambda)$ by a function $\theta:V\to \mathbb R$.
+
+Let $U$ be given by
+
+\[
+    U=\{x\in\Omega|\ \varphi_i(x)\leq 0,\ 1\leq i\leq m\}
+\]
+
+Consider 2 different conditions for this unconstrained minimization problem.
+
+Firstly, if all the inequalities hold, according to \ref{kkt2}, we will have $L(v,\lambda)=J(v)$, so
+\[
+    \min_v\max_{\lambda\in\mathbb R_+^m} L(v,\lambda) \Leftrightarrow \min_{v\in U} J(v)
+\]
+which is what we expect.
+
+Secondly, if the inequalities don't hold, we have at least one $1\leq i\leq m$ satisfying
+\[
+    \varphi_i(v)\geq 0,\ \lambda_i\geq 0
+\]
+so we can set $\lambda_i$ infinitely large, and
+\[
+    \max_{\lambda\in\mathbb R_+^m} L(v,\lambda) =+\infty
+\]
+
+So what do we get? We have a function $\max_{\lambda\in\mathbb R_+^m} L(v,\lambda)$ which equals to $J(v)$ in its feasible region and is infinitly large otherwise. Then the solution of this new unconstrained problem is obviously the same as the previous constrained problem. We only have to solve this problem
+\begin{align}
+    \min_v \max_{\lambda\in\mathbb R_+^m} L(v,\lambda) \label{minmax}
+\end{align}
+without any other constraints! Amazing!
+
+\section{Dual problem}
+
+According to the definition in the previous section, we know that a minimization problem with inequality convex constraints can be concisely expressed by generalized Lagrangian $L(v,\lambda)$, then we can define the dual function and dual problem.
+
+\begin{definition}
+    Given the primal problem $P$
+    \begin{align*}
+        &\min J(v)\\
+        &s.t.\ \varphi_i(v)\leq 0, \ i=1,\cdots,m,
+    \end{align*}
+    where $J:\Omega\to\mathbb R$ and the constraints $\varphi_i:\Omega\to\mathbb R$ are some functions defined on some open subset $\Omega$ of some finite-dimensional Euclidean vector space V, the function $G:\mathbb R_+^m\to\mathbb R$ given by
+    \[
+        G(\mu)=\inf_{v\in\Omega}L(v,\mu)\ \mu\in\mathbb R_+^m,
+    \]
+    is called the dual function. The problem $D$
+    
+    \begin{align*}
+        &\max G(\mu)\\
+        &s.t.\ \mu\in\mathbb R_+^m
+    \end{align*}
+    is called the dual problem. The variable $\mu$ is called the dual variable. The variable $\mu\in\mathbb R_+^m$ is said to be dual feasible if $G(\mu)$ is defined. If $\lambda\in\mathbb R_+^m$ is a maximum of G, then we call it a dual optimal.
+\end{definition}
+
+The dual function $G$ in the above definition provides a lower bound on the value of the objective function $J$, that is
+
+\[
+    G(\mu)\leq L(u,\mu)\leq J(u)\ \forall u\in U, \forall \mu\in\mathbb R_+^m
+\]
+
+Since $\mu\geq 0$ and $\varphi_i(u)\leq 0$ for $i=1,\cdots,m$, we have
+\[
+    G(\mu)=\inf_{v\in\Omega}L(v,\mu)\leq L(u,\mu)=J(u)+\sum_{i=1}^m\mu_i\varphi_i(u)\leq J(u)
+\]
+Denote the minimum value of the primal problem $P$ by $p^*$ and denote the maximum value of the dual problem $D$ by $d^*$, then we have the \emph{weak duality}
+\[
+    d^*\leq p^*
+\]
+If the optimal solution of primal problem $P$ and dual problem $D$ is $u^*$ and $\lambda^*$ respectively, we have another equivalent weak duality
+\[
+    G(\lambda^*)\leq J(u^*)
+\]
+
+And we can define strong duality.
+
+\begin{definition}
+    The difference $p^*-d^* \geq 0$ is called the \emph{optimal duality gap}. If the duality gap is zero, that is, $p^*=d^*$, then we say that \emph{strong duality} holds.
+\end{definition}
+
+Even if the primal problem is not convex, the dual problem is convex always. So the weak duality can always be used to find a lower bound for the primal problem even if the strong duality does not hold.
+
+The following theorem indicates that we can solve the primal problem by the dual problem in some conditions when the strong duality holds.
+
+\begin{theorem}
+    Consider the minimization problem $P$
+    \begin{align*}
+        &\min \ J(v)\\
+        &s.t.\ \varphi_i(v)\leq 0, \ i=1,\cdots,m
+    \end{align*}
+    where the function J and $\varphi_i$ are defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (or a real Hilbert space V)
+    \begin{enumerate}[label={(\arabic*)}]
+        \item Suppose the functions $\varphi_i:\Omega\to \mathbb R$ are continuous, and that for every $\mu\in\mathbb R_+^m$, the problem $P$
+            \begin{align*}
+                &\min\ L(v,\mu)\\
+                &s.t.\ v\in\Omega,
+            \end{align*}
+            has a unique solution $u_\mu$, so that
+            \[
+                L(u_\mu,\mu)=\inf_{v\in\Omega}L(v,\mu)=G(\mu),
+            \]
+            and the function $\mu\mapsto u_\mu$ is continuous on $\mathbb R_+^m$. Then the function G is differentiable for all $\mu\in\mathbb R_+^m$
+            \[
+                G^\prime_\mu(\xi)=\sum_{i=1}^m\xi_i\varphi_i(u_\mu) \ \forall \xi\in\mathbb R^m
+            \]
+            If $\lambda$ is any solution of problem $D$:
+            \begin{align*}
+                &\max\ G(\mu)\\
+                &s.t.\ \mu\in\mathbb R_+^m
+            \end{align*}
+            then the solution $u_\lambda$ of the corresponding problem $P_\lambda$ is a solution of problem $P$.
+        \item Assume problem $P$ has some solution $u\in U$, and that $\Omega$ is convex, the functions $\varphi_i$ ($1\leq i\leq m$) and J are convex and differentiable at u, and that the constraints are qualified. Then problem $D$ has a solution $\lambda\in\mathbb R_+^m$, and $J(u)=G(\lambda)$, that is, the duality gap is zero.
+    \end{enumerate}
+\end{theorem}
+
+The proof is long but the idea of the theorem is not surprising, we have seen similar theorems in linear programs.
+
+\chapter{Support Vector Machine}
+\section{Hard margin Support Vector Machine}
+
+A Support Vector Machine is a classifier that maximizes the margin between the separating hyperplane and supporting vectors\cite{cortes1995support}, which is an optimization problem 
+\begin{align*}
+    &\min \frac{1}{2}||w||^2\\
+    &s.t. \ y_i(w^\top x_i+b)\geq 1, \ i=1,\cdots,m
+\end{align*}
+where $x_i\in \mathbb R^d$ is a $d$-dimensional data point in a linear separable dataset which has $m$ data points, $y_i$ is the label of point $x_i$. $w\in \mathbb R^n$ and $b$ are the coefficient of the constraint affine function, in other words, the separating hyperplane or support vector machine. 
+
+Obviously, this is the inequality constraint optimization problem we discussed in the previous chapter, so we write the Lagrangian
+\[
+    L(w,b,k)=\frac{||w||^2}{2}+\sum_{i=1}^m k_i(1-y_i(w^\top x_i+b))
+\]
+where $w=(w_1,\cdots,w_d)^\top$, $k=(k_1,\cdots,k_m)^\top\in\mathbb R_+^m$.
+
+Then we have the primal problem $P$ and dual problem $D$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
+
+\begin{align}
+    &\min_{w,b} \max_{k\in\mathbb R_+^m} L(w,b,k) \tag{P}\\
+    &\max_{k\in\mathbb R_+^m} \min_{w,b} L(w,b,k) \tag{D}
+\end{align}
+
+For the problem $D$, we write explicitly the inner function
+\begin{align}
+    \min_{w,b} L(w,b,k)=\min_{w,b}[\frac{1}{2}||w||^2+\sum_{i=1}^m k_i(1-y_i(w^\top x_i+b))]
+\end{align}
+Use KKT condition\ref{kkt1}, we have
+\begin{align}
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m k_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m k_i y_i
+\end{align}
+
+Substitute formula (3.2) and (3.3) back to (3.1), we have
+\begin{align}
+    \min_{w,b} L(w,b,k) = \frac{1}{2}\left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right) + \sum_{i=1}^m k_i - \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+
+Expand the first term, we have 
+
+\begin{align}
+    \left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+Substitute (3.5) back to (3.4), we have
+
+\begin{align}
+    \min_{w,b} L(w,b,k) = \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+
+Then we substitute function (3.6) back to problem $D$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P$
+\begin{align*}
+    &\max_k & & \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j \\
+    &s.t. \ & & \sum_{i=1}^m k_i y_i=0 \\
+    & & & k_j\geq 0,\ i=1,\cdots,m
+\end{align*}
 
 
-\chapter{Linear Support Vector Classifier}
-\chapter{Linear SVM with soft margin, Hinge Loss}
-\chapter{Kernel method}
-\chapter{Support Vector Regression}
-\chapter{Support Vector Clustering}
+\section{Soft margin Support Vector Machine}
+
+The hard margin support vector machine has a very strict requirement on the dataset, which means the dataset has to be linear separable. Otherwise, the intersection of all the inequality constraints will be an empty set.
+
+To better solve problems in non linear separable datasets, we have to introduce Soft Margin Support Vector Machine which allow the separating hyperplane to make mistakes sometimes.
+
+Introduce slackness variables $s=(s_1,\cdots,s_m)^\top\in\mathbb R_+^m$, so the optimization problem is
+\begin{align*}
+    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \\
+    &s.t. & & y_i(w^\top x_i +b)\geq 1 - s_i \\
+    &     & & s_i\geq 0, \ i=1,\cdots,m
+\end{align*}
+
+Similar to what we did in the previous section, we have a generalized Lagrangian
+\begin{align}
+    L(w,b,k,s,u) = \frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m k_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i
+\end{align}
+
+Then we have the primal problem $P'$ and dual problem $D'$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
+
+\begin{align}
+    &\min_{w,b,s} \ \max_{k\in\mathbb R_+^m,u\in\mathbb R_+^m} L(w,b,k,s,u) \tag{P'}\\
+    &\max_{k\in\mathbb R_+^m,u\in\mathbb R_+^m} \ \min_{w,b,s} L(w,b,k,s,u) \tag{D'}
+\end{align}
+
+For the problem $D'$, we write explicitly the inner function
+\begin{align}
+    \min_{w,b,s} L(w,b,k,s,u)=\min_{w,b,s}[\frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m k_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i]
+\end{align}
+Use KKT condition\ref{kkt1}, we have
+\begin{align}
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m k_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m k_i y_i \\
+    &\frac{\partial L}{\partial s}=0\Rightarrow 0=C-k_i-u_i
+\end{align}
+
+Substitute formula (3.9), (3.10) and (3.11) back to (3.8), we have 
+\begin{align}
+    \min_{w,b,s} L(w,b,k,s,u) = \frac{1}{2}\left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right) + \sum_{i=1}^m k_i - \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+
+Expand the first term, we have 
+
+\begin{align}
+    \left( \sum_{i=1}^m k_i y_i x_i \right)^\top \left( \sum_{i=1}^m k_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+Substitute (3.13) back to (3.12), we have
+
+\begin{align}
+    \min_{w,b,s} L(w,b,k,s,u) = \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j
+\end{align}
+
+Then we substitute function (3.14) back to problem $D'$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P'$
+
+\begin{align*}
+    &\max_k & & \sum_{i=1}^m k_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m k_i k_j y_i y_j x_i^\top x_j \\
+    &s.t. \ & & \sum_{i=1}^m k_i y_i=0 \\
+    & & & k_j\geq 0\\
+    & & & C-k_i-u_i=0,\ i=1,\cdots,m 
+\end{align*}
+
+\section{Hinge Loss}
+\section{Kernel method}
+\section{Support Vector Regression}
+\section{Support Vector Clustering}
 \chapter{Vapnik-Chervonenkis dimension and structural risk minimization}
 \chapter{Conclusion}
 
