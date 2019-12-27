@@ -1038,7 +1038,7 @@ The VC dimension is a metric of the ability to over-fit any dataset, it measures
 By the definition of a set of real functions, the VC dimension of linear function $g(x)=w^\top x+b$, $w,x\in\mathbb R^d$ for a general dataset is $d+1$. But if we have constraints on the classification margin, its VC dimension can be smaller, which is just the idea of SVM.
 
 \begin{theorem}
-    If for all the n data points $x_i=(x_1,\cdots,x_d)^\top$, $i=1,\cdots,n$, we have $||x_i-a||<R$, where $a$ is the center of a hypersphere, $R$ is its radius, then for a set of hyperplanes whose margins are greater than $\gamma$, its VC dimension $h$ satisfy
+    If for all the n data points $x_i=(x_1,\cdots,x_d)^\top$, $i=1,\cdots,n$, we have $||x_i-a||<R$, where $a$ is the center of a hypersphere, $R$ is its radius, then for a set of hyperplanes whose margins are greater than $\gamma$, its VC dimension $h$ has a upper bound
     \[
         h\leq \min(\frac{R^2}{\gamma^2},d)+1
     \]
@@ -1048,7 +1048,7 @@ By the above theorem, we know that SVM will find just the hyperplane with the mi
 
 \section{Structural risk minimization}
 
-Structural risk minimization says that if we have different function sets to shatter (or separate) a dataset into classes, then the function set with the minimal structural risk is the function set with the minimal VC dimension, which is the following statement.
+Structural risk minimization says that if we have different function sets to separate a dataset into classes, then the function set with the minimal structural risk is the function set with the minimal VC dimension, which is the following statement.
 
 \begin{theorem}
     (Structural risk minimization) The function set with the minimal structural risk is the function set with the minimal VC dimension.
@@ -1068,6 +1068,11 @@ By the statistical learning theory of Vapnik, we can get a very useful theorem w
 So we will know how good the SVM we have trained is even without prediction! Amazing!
 
 \chapter{Conclusion}
+
+In this report, I referred to the Lagrange method and non-linear optimization theory. Then I deduced the primal and dual problem of hard margin SVM and soft margin SVM, discussed how to use hinge loss to simplify SVM optimization. Then I talked about the SMO algorithm which is used to find an optimal solution of SVM. And I shortly referred to SVR and SVC which are regression and clustering version of SVM. In the end, I referred to the most powerful theorems in the Statistical
+Learning theory by Vapnik, and discussed how can they be used to help us understand and use SVM. 
+
+Based upon the ideas in the previous chapters, I implemented a multi-class SVM classifier with a utility function to help mapping non-linearly the original dataset to a higher dimensional feature space. This classifier has 92\% accuracy on the MNIST training set. The code is uploaded to Github: \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}.
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
