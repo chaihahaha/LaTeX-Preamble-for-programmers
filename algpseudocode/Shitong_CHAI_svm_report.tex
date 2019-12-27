@@ -619,7 +619,7 @@ The proof is long but the idea of the theorem is not surprising, we have seen si
 \chapter{Support Vector Machine}
 \section{Hard margin Support Vector Machine}
 
-A Support Vector Machine is a classifier that maximizes the margin between the separating hyperplane and supporting vectors\cite{cortes1995support}, which is an optimization problem 
+A Support Vector Machine is a classifier $g(x)= w^\top x + b $ that maximizes the margin between the separating hyperplane and supporting vectors\cite{cortes1995support}, which is an optimization problem 
 \begin{align*}
     &\min& & \frac{1}{2}||w||^2 \label{svmhard}\tag{$\mathrm{SVM_{hard}}$}\\
     &s.t.& & \ y_i(w^\top x_i+b)\geq 1, \ i=1,\cdots,m
@@ -666,11 +666,19 @@ Substitute (3.5) back to (3.4), we have
 \end{align}
 
 Then we substitute function (3.6) back to problem $D$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P$
+
 \begin{align*}
     &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j \\
     &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
     & & & a_j\geq 0,\ i=1,\cdots,m
 \end{align*}
+
+Assume the optimal solution is $a^*=(a_1,\cdots,a_m)$, then by (3.2) we will have optimal slope and intercept, $w$ and $b$
+
+\begin{align}
+    w^*&=\sum_{i=1}^m a_i^* y_ix_i \\
+    b^*&=-\frac{\max_{i,y_i=-1}w^{*\top}x_i + \min_{i,y_i=1} w^{*\top} x_i}{2}
+\end{align}
 
 
 \section{Soft margin Support Vector Machine}
@@ -783,9 +791,9 @@ The reason why SVM with kernel can be used without causing serious problems is e
 \end{theorem}
 
 \begin{theorem}
-    (Mercer's Theorem\cite{mercer1909functions}) If $k(x_i,x_j)$ is a symmetric function ($k(x_i,x_j)=k(x_j,x_i)$), then it is a inner product in a Hilbert space if for any square integrable function $g$, we have
+    (Mercer's Theorem\cite{mercer1909functions}) If $K(x_i,x_j)$ is a symmetric function ($K(x_i,x_j)=K(x_j,x_i)$), then it is a inner product in a Hilbert space if for any square integrable function $g$, we have
     \[
-        \int k(x_i,x_j)g(x_i)g(x_j)dx_idx_j \geq 0.
+        \int K(x_i,x_j)g(x_i)g(x_j)dx_idx_j \geq 0.
     \]
 \end{theorem}
 
@@ -794,15 +802,15 @@ The reason why SVM with kernel can be used without causing serious problems is e
     \[
         \min_{h\in\mathcal H} L(h(x_1),\cdots,h(x_n))+C(||h||_{\mathcal H})
     \]
-    can be represented by a linear combination of kernel function $k$ as
+    can be represented by a linear combination of kernel function $K$ as
     \[
-        h^*(x)=\sum_{i=1}^n a_i k(x,x_i)
+        h^*(x)=\sum_{i=1}^n a_i K(x,x_i)
     \]
 \end{theorem}
 
 
 The main idea of SVM with kernel is to use a kernel function to map the original features to a higher dimensional feature space. With Cover Theorem, we know that the higher the dimension, the easier to linearly separate data points. Notice that the proof of Theorem 2.2.1 also holds for real Hilbert space, so all the deductions in Section 3.1 and Section 3.2 also hold for real Hilbert space. Then we can replace $x_i^\top x_j$ with $\langle x_i,x_j \rangle$ (where the inner product $\langle -,-
-    \rangle$ is defined with a kernel function $k(x_1,x_2)=\langle x_1,x_2\rangle$ in a Hilbert space called Reproducing Kernel Hilbert Space), and the result 
+    \rangle$ is defined with a kernel function $K(x_1,x_2)=\langle x_1,x_2\rangle=\varphi(x_1)^\top \varphi(x_2)$ in a Hilbert space called Reproducing Kernel Hilbert Space), and the result 
 \begin{align*}
     &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle \label{softsvmk}\tag{$\mathrm{SVM_{soft} kernel}$}\\
     &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
@@ -816,11 +824,249 @@ The kernel function have to be symmetrical and positive definite to satisfy Defi
 Actually, kernel method not only can be applied to SVM, but also many other optimization problems with a monotonically increasing regularization term according to Riesz representation theorem.
 \section{SMO algorithm}
 
+A very simple and efficient algorithm to find the solution to a SVM problem was found in 1998 by John Platt called SMO algorithm\cite{platt1998sequential}, we will look at it in this section.
+
+Recall we have the dual problem with kernel\ref{softsvmk}, we write the equivalent minimization problem
+
+\begin{align*}
+    &\min_a & & \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle - \sum_{i=1}^m a_i  \label{softsvmm}\tag{$\mathrm{SVM_{soft} kernel}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m 
+\end{align*}
+
+Let $K_{ij}=\langle x_i,x_y\rangle, v_i=\sum_{j=3}^m y_j a_j K_{ij}$.
+
+The SMO algorithm choose two bases at a time, say $a_1$ and $a_2$, to optimize upon and fix the other bases. So we have $a_1 y_1 + a_2 y_2=k$, where $k$ is a constant. 
+
+Notice that $y_1^2=y_2^2=1$, so 
+
+\begin{align}
+    a_1&=ky_1-a_2y_1y_2\\
+    a_1^2&=k^2-2ka_2y_2 + a_2^2
+\end{align}
+
+Expand the summations and substitute, we have
+
+\begin{align}
+    &\min_a \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m y_iy_ja_ia_j\langle x_i,x_j\rangle - \sum_{i=1}^m a_i \\
+    =&\min_a \frac{1}{2}\sum_{i=3}^m\sum_{j=3}^m y_i y_j a_i a_j K_{ij} - \sum_{i=3}^m a_i \\
+     &+\frac{1}{2}(y_1^2 a_1^2 K_{11}+y_2^2 a_2^2 K_{22} + 2y_1y_2 a_1a_2 K_{12} 
+     +2y_1a_1v_1 + 2y_2a_2v_2) - (a_1+a_2) \\
+    =&\min_{a_1,a_2} \frac{1}{2}(y_1^2 a_1^2 K_{11}+y_2^2 a_2^2 K_{22} + 2y_1y_2 a_1a_2 K_{12} 
+     +2y_1a_1v_1 + 2y_2a_2v_2) - (a_1+a_2) 
+\end{align}
+
+By (3.18), (3.19) and (3.23), we have 
+
+\begin{align}
+    &\min_a \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m y_iy_ja_ia_j\langle x_i,x_j\rangle - \sum_{i=1}^m a_i \\
+    =&min_{a_2}\frac{1}{2} [(k^2-2ka_2y_2+a_2^2)K_{11}+a_2^2K_{22}+2(ky_2-a_2)a_2K_{12}+2(k-a_2y_2)v_1+2y_2a_2v_2] \\
+    &-(a_1+a_2) \\
+    =&\min_{a_2}\frac{1}{2}(K_{11}+K_{22}-2K_{12})a_2^2+(y_1y_2-1-ky_2K_{11}+ky_2K_{12}-y_2v_1+y_2v_2)a_2 \\
+    & +\frac{1}{2}k^2K_{11}+kv_1-ky_1
+\end{align}
+
+Let $\frac{\partial W}{\partial a_2}=0$, we have
+
+\begin{align}
+    (K_{11}+K_{22}-2K_{12})a_2+y_1y_2-1-ky_2K_{11}+ky_2K_{12}-y_2(v_1-v_2)=0
+\end{align}
+
+where $a_2$ is the new value we want.
+
+Let $\kappa=K_{11}+K_{22}-2K_{12}$, $g(x_i)=\sum_{j=1}^my_ja_jK_{ij}$, so we have
+
+\begin{align}
+    v_1 &=\sum_{j=3}^my_ja_jK_{1j} \\
+    &=g(x_1)+y_2a_2(K_{11}-K_{12})-kK_{11} \\
+    v_2 &=\sum_{j=3}^my_ja_jK_{2j} \\
+    &=g(x_2)+y_2a_2(K_{21}-K_{22})-kK_{21} 
+\end{align}
+
+So we have
+
+\begin{align}
+    v_1-v_2&=g(x_1)-g(x_2)+y_2(K_{11}+K_{22}-2K_{12})a_2-kK_{11}+kK_{12} \\
+    &=g(x_1)-g(x_2)+y_2\kappa a_2-kK_{11}+kK_{12} 
+\end{align}
+
+where the $a_2$ is the old value.
+
+Substitute (3.35) into (3.29), we have
+
+\begin{align}
+    y_2\kappa a_2^{\mathrm{new}}=(g(x_1)-y_1)-(g(x_2)-y_2)+y_2\kappa a_2^{\mathrm{old}}
+\end{align}
+
+Notice that $E_i=g(x_i)-y_i$ is the error between prediction of SVM and ground truth, so we have a simpler representation
+
+\begin{align}
+    a_2^{\mathrm{new}} &= a_2^{\mathrm{old}}+\frac{y_2(E_1-E_2)}{\kappa} \\
+    \kappa &=(x_1-x_2)^2
+\end{align}
+
+And by $a_1y_1+a_2y_2=k$, we have the new value of $a_1$
+
+\begin{align}
+    a_1^{\mathrm{new}}=a_1^{\mathrm{old}}+ y_1y_2(a_2^{\mathrm{old}}- a_2^{\mathrm{new}})
+\end{align}
+
+%And we have the new value of $b$
+%
+%\begin{align}
+%    b^{\mathrm{new}}=-E_2-y_1 K_{12}(a_1^{\mathrm{new}}-a_1^{\mathrm{old}})-y_2 K_{22}(a_2^{\mathrm{new}}-a_2^{\mathrm{old}})+b^{\mathrm{old}}
+%\end{align}
+
+However, when we use this formula to get a new $a_2$, it is possible that the new $a_2$ doesn't follow the box constraint $0\leq a_2\leq C$, so we have to clip the value.
+
+If $y_1\neq y_2$, let 
+\begin{align*}
+    H=\min(C,C+a_2^{\mathrm{old}}-a_1^{\mathrm{old}}) \\
+    L=\max(0,a_2^{\mathrm{old}}-a_1^{\mathrm{old}});
+\end{align*}
+
+if $y_1=y_2$,  let 
+\begin{align*}
+    H=\min(C,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}) \\
+    L=\max(0,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}-C),
+\end{align*}
+
+then
+
+\[
+    a_2^{\mathrm{new clip}} = 
+    \begin{cases}
+        H, \quad a_2^{\mathrm{new}}>H \\
+        a_2^{\mathrm{new}}, \quad L\leq a_2^{\mathrm{new}} \leq H \\
+        L, \quad a_2^{\mathrm{new}} <L
+    \end{cases}
+\]
+
 \section{Support Vector Regression}
+
+The main idea of support vector regression\cite{drucker1997support} is to minimize the distance between the regressing hyperplane and support vectors. In contrary to SVM, the margin in SVR is now "outside". That is, when a vector is distant enough from regressing hyperplane, it will be support vector, then minimizing the outer margin is equivalent to maximizing the distance between support vectors and the regressing hyperplane.
+
+Intuitively, we can write the optimization problem for SVR
+
+\begin{align*}
+    &\min_{w,b,\xi, \xi^*} && \frac{1}{2}||w||^2 +C\sum_{i=1}^m (\xi_i+\xi_i^*) \\
+    &s.t. && (\langle w,x_i\rangle +b)-y_i\leq \epsilon +\xi_i \\
+    & && y_i-(\langle w,x_i\rangle +b)\leq \epsilon +\xi_i^* \\
+    & && \xi_i,\xi_i^*\geq 0,\ i=1,\cdots,m
+\end{align*}
+
+%\begin{align*}
+    %    &\min_{w,b,\eta} && \frac{1}{2} ||w||^2 + \frac{C}{2}\sum_{i=1}^m\eta_i^2 \\
+    %&s.t. &&y_i-(\langle w,x_i\rangle + b)=\eta_i,\ i=1,\cdots,m
+%\end{align*}
+where $\xi=(\xi_1,\cdots,\xi_m)^\top,\xi^*=(\xi_1^*,\cdots,\xi_m^*)^\top$ are the slack variables, and $C$ is the penalty coefficient.
+
+And with almost the same deduction in Section 3.1 and Section 3.2, we will have the dual problem
+
+\begin{align*}
+    &\max_{a,a^*,\eta,\eta^*} && -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m(a_i^*-a_i)(a_j^*-a_j)\langle x_i,x_j\rangle -\epsilon \sum_{i=1}^m (a_i^*+a_i) + \sum_{i=1}^my_i(a_i^*-a_i) \\
+    &s.t. &&\sum_{i=1}^m(a_i^*-a_i)=0 \\
+    & &&C-a_i-\eta_i=0 \\
+    & &&C-a_i^*-\eta_i^*=0 \\
+    & && a_i,a_i^*,\eta_i,\eta_i^*\geq 0,\ i=1,\cdots,m
+\end{align*}
+
+%\begin{align*}
+    %    &\max_a && -\frac{1}{2}\sum_{i=1}^m \sum_{j=1}^m a_i a_j (\langle x_i,x_j \rangle+\frac{\delta_{ij}}{C}) +\sum_{i=1}^m a_i y_i \\
+    %&s.t. && \sum_{i=1}^m a_i=0
+%\end{align*}
+
+Notice the form is similar to \ref{softsvmm}, so we can apply SMO algorithm on it to find the optimal solution. The deduction is almost the same, so we leave it out.
+
 \section{Support Vector Clustering}
+
+The main idea of Support Vector Clustering method\cite{ben2001support} almost the same as SVR. The difference is that instead of training a hyperplane, SVC will train a sphere. The primal Lagrangian is
+
+\[
+    L=R^2-\sum_j (R^2+\xi_j-||\varphi(x_j)-a||^2)\beta_j-\sum_j\xi_j\mu_j+C\sum_j\xi_j
+\]
+
+where $\xi=(\xi_1,\cdots,\xi_m)^\top$ are slack variables, $R$ is the radius of the sphere and $a$ is the center of the sphere.
+
+Use KKT conditions in Theorem 2.2.1, we have the dual Lagrangian
+
+\[
+    W=\sum_jK(x_j,x_j)\beta_j-\sum_i\sum_j\beta_i\beta_jK(x_i,x_j)
+\]
+
+Define the distance of point $x$'s image $\varphi(x)$ in feature space from the center of the sphere $a$ as
+\[
+    R^2(x)=||\varphi(x)-a||^2
+\]
+
+Then we have
+
+\[
+    R=\{R(x_i)|\ x_i \text{is a support vector} \}
+\]
+
 \chapter{Generalization ability of SVM}
+
+The most impressive property of SVM is the generalization ability. Give a rather limited dataset, SVM can give us a pretty descent classifier with a very low prediction error. In this chapter we will look at the theoretical root of this ability.
+
 \section{Vapnik-Chervonenkis dimension}
+
+The VC dimension is a metric of the ability to over-fit any dataset, it measures the complexity of a set of real functions. The definition is given below.
+
+\begin{definition}
+    (The VC dimension of a set of indicator functions\cite{vapnik2013nature}) The VC dimension of a set of indicator functions $Q(z,\alpha)$, $\alpha\in\Lambda$, is the maximum number $h$ of vectors $z_1,\cdots,z_h$ that can be separated into two classes in all $2^h$ possible ways using functions of the set (i.e., the maximum number of vectors that can be shattered by the set of functions). If for any n there exists a set of n vectors that can be shattered by the set
+    $Q(z,\alpha)$, $\alpha\in\Lambda$, then the VC dimension is equal to infinity.
+\end{definition}
+
+\begin{definition}
+    (The VC dimension of a set of real functions\cite{vapnik2013nature}) Let $A\leq Q(z,\alpha)\leq B,\ \alpha\in \Lambda$ be a set of real functions bounded by constants $A$ and $B$ ($A$ can be $-\infty$ and $B$ can be $\infty$).
+    Let us consider along with the set of real functions $Q(z,\alpha$, $\alpha\in \Lambda$, the set of indicators
+    \[
+        I(z,\alpha,\beta)=\theta\{Q(z,\alpha)-\beta\},\ \alpha\in\Lambda, \ \beta\in(A,B)
+    \]
+    where $\theta(z)$ is the step function
+    \[
+        \theta(z)=
+        \begin{cases}
+            0,\ z<0 \\
+            1,\ z\geq 0\\
+        \end{cases}
+    \]
+    The VC dimension of a set of real functions $Q(z,\alpha)$, $\alpha\in \Lambda$, is defined to be the VC dimension of the set of corresponding indicators with parameters $\alpha\in\Lambda$ and $\beta\in(A,B)$.
+\end{definition}
+
+By the definition of a set of real functions, the VC dimension of linear function $g(x)=w^\top x+b$, $w,x\in\mathbb R^d$ for a general dataset is $d+1$. But if we have constraints on the classification margin, its VC dimension can be smaller, which is just the idea of SVM.
+
+\begin{theorem}
+    If for all the n data points $x_i=(x_1,\cdots,x_d)^\top$, $i=1,\cdots,n$, we have $||x_i-a||<R$, where $a$ is the center of a hypersphere, $R$ is its radius, then for a set of hyperplanes whose margins are greater than $\gamma$, its VC dimension $h$ satisfy
+    \[
+        h\leq \min(\frac{R^2}{\gamma^2},d)+1
+    \]
+\end{theorem}
+
+By the above theorem, we know that SVM will find just the hyperplane with the minimal VC dimension.
+
 \section{Structural risk minimization}
+
+Structural risk minimization says that if we have different function sets to shatter (or separate) a dataset into classes, then the function set with the minimal structural risk is the function set with the minimal VC dimension, which is the following statement.
+
+\begin{theorem}
+    (Structural risk minimization) The function set with the minimal structural risk is the function set with the minimal VC dimension.
+\end{theorem}
+
+\section{Generalization ability of SVM}
+
+By the statistical learning theory of Vapnik, we can get a very useful theorem which indicates the generalization ability of SVM by the number of support vectors.
+
+\begin{theorem}
+    (Generalization ability of SVM\cite{cortes1995support}) The expectation of the misclassification probability of SVM $E[P_{error}]$ is bounded by the fraction of the number of support vectors $m_{supprt}$ and the number of training vectors $m$, that is
+    \[
+        E[P_{error}]\leq\frac{E[m_{support}]}{m}
+    \]
+\end{theorem}
+
+So we will know how good the SVM we have trained is even without prediction! Amazing!
+
 \chapter{Conclusion}
 
 \bibliography{mybib}{}
