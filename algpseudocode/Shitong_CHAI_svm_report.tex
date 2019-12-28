@@ -765,19 +765,22 @@ So we can rewrite the soft margin SVM optimization problem as an unconstrained o
     &\min & C \sum_{i=1}^m l(w^\top x_i+b, y_i) + \frac{1}{2}||w||^2 
 \end{align*}
 
-With the help of gradient descent algorithm or other optimization problem, we can find a local minimum solution easily.
+With the help of gradient descent algorithm or other optimization algorithms, we can find a local minimum solution easily.
+
+When we have a dataset with $n$ classes ($n>2$), one SVM classifier is not enough, we need $C_n^2$ classifiers. And to perform prediction, we have to calculate all the related classification result of relavant SVM classifiers and choose the class with the largest number of SVM classifiers which indicate that the sample belongs to this class. This is what I did in \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}..
 
 \section{Kernel method}
 
 The common linear hard margin SVM or soft margin SVM can only give a linear separating hyperplane, which means that when dealing with datasets with non-linearity, linear SVM will suffer from bad performance.
 
-There are two different approaches to solve this problem, the first one is by preprocessing the dataset with Kernel Principal Component Analysis method to add non-linearity to it. Another one is SVM with kernel.
+There are two different approaches to solve this problem, the first one is by preprocessing the dataset and increase the dimensionality of it with the help of a non-linear function $\varphi:\mathbb R^d\to\mathbb R^{d^\prime}$. Another one is SVM with kernel.
 
-The approach to increase dimensionality to the dataset was explored in \cite{cortes1995support}. When the dimensionality of feature space is more than 33000, the raw error becomes much lower and the raw error never increase with higher dimensionality. Although this approach is intuitive and easy to implement, the dataset with a very high dimensionality sometimes will take up too much memory which will cause trouble when training a SVM on it. 
+The approach to increase dimensionality to the dataset was explored in \cite{cortes1995support}. When the dimensionality of feature space is more than 33000, the raw error becomes much lower and the raw error never increase with higher dimensionality. Although this approach is intuitive and easy to implement, the dataset with a very high dimensionality sometimes will take up too much memory which will cause trouble when training a SVM on it. I did an experiment on it and
+found that this simple approach will dramatically increase the prediction accuracy but also increase the overhead of GPU memory, the function increase\_dims in \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code} is actually the function $\varphi$.
 
-The other approach called SVM with kernel, however, is much more commonly used.
+Another approach called SVM with kernel, however, is much more commonly used.
 
-The reason why SVM with kernel can be used without causing serious problems is explained by several theorems in the following.
+The fact that SVM with kernel can be used and will not cause serious problems is supported by several theorems in the following.
 
 \begin{theorem}
     (Cover's Theorem\cite{cover1965geometrical}) The probability to linearly separate N points in a d-dimensional space is
@@ -1072,7 +1075,7 @@ So we will know how good the SVM we have trained is even without prediction! Ama
 In this report, I referred to the Lagrange method and non-linear optimization theory. Then I deduced the primal and dual problem of hard margin SVM and soft margin SVM, discussed how to use hinge loss to simplify SVM optimization. Then I talked about the SMO algorithm which is used to find an optimal solution of SVM. And I shortly referred to SVR and SVC which are regression and clustering version of SVM. In the end, I referred to the most powerful theorems in the Statistical
 Learning theory by Vapnik, and discussed how can they be used to help us understand and use SVM. 
 
-Based upon the ideas in the previous chapters, I implemented a multi-class SVM classifier with a utility function to help mapping non-linearly the original dataset to a higher dimensional feature space. This classifier has 92\% accuracy on the MNIST training set. The code is uploaded to Github: \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}.
+Based upon the ideas in the previous chapters, I implemented a multi-class SVM classifier with a utility function to help mapping non-linearly the original dataset to a higher dimensional feature space. This classifier has 92\% accuracy on the MNIST training set with the help of PCA algorithm and the increasing-dimensionality function. The code is uploaded to Github: \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}.
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
