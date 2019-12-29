@@ -859,7 +859,7 @@ Expand the summations and substitute, we have
      +2y_1a_1v_1 + 2y_2a_2v_2) - (a_1+a_2) 
 \end{align}
 
-By (3.18), (3.19) and (3.23), we have 
+By (3.20), (3.21) and (3.25), we have 
 
 \begin{align}
     &\min_a \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m y_iy_ja_ia_j\langle x_i,x_j\rangle - \sum_{i=1}^m a_i \\
@@ -877,7 +877,7 @@ Let $\frac{\partial W}{\partial a_2}=0$, we have
 
 where $a_2$ is the new value we want.
 
-Let $\kappa=K_{11}+K_{22}-2K_{12}$, $g(x_i)=\sum_{j=1}^my_ja_jK_{ij}$, so we have
+Let $\kappa=K_{11}+K_{22}-2K_{12}$, $g(x_i)=\sum_{j=1}^my_ja_jK_{ij} + b$, so we have
 
 \begin{align}
     v_1 &=\sum_{j=3}^my_ja_jK_{1j} \\
@@ -895,7 +895,7 @@ So we have
 
 where the $a_2$ is the old value.
 
-Substitute (3.35) into (3.29), we have
+Substitute (3.37) into (3.31), we have
 
 \begin{align}
     y_2\kappa a_2^{\mathrm{new}}=(g(x_1)-y_1)-(g(x_2)-y_2)+y_2\kappa a_2^{\mathrm{old}}
@@ -914,6 +914,8 @@ And by $a_1y_1+a_2y_2=k$, we have the new value of $a_1$
     a_1^{\mathrm{new}}=a_1^{\mathrm{old}}+ y_1y_2(a_2^{\mathrm{old}}- a_2^{\mathrm{new}})
 \end{align}
 
+And we can obtain corresponding $w$ and a new $b$ easily by (3.7) and (3.8).
+
 %And we have the new value of $b$
 %
 %\begin{align}
@@ -924,14 +926,14 @@ However, when we use this formula to get a new $a_2$, it is possible that the ne
 
 If $y_1\neq y_2$, let 
 \begin{align*}
-    H=\min(C,C+a_2^{\mathrm{old}}-a_1^{\mathrm{old}}) \\
-    L=\max(0,a_2^{\mathrm{old}}-a_1^{\mathrm{old}});
+    H&=\min(C,C+a_2^{\mathrm{old}}-a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}-a_1^{\mathrm{old}});
 \end{align*}
 
 if $y_1=y_2$,  let 
 \begin{align*}
-    H=\min(C,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}) \\
-    L=\max(0,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}-C),
+    H&=\min(C,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}-C),
 \end{align*}
 
 then
