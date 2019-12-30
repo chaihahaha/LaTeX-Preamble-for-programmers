@@ -1,0 +1,164 @@
+\documentclass{article}
+
+\usepackage{enumitem}
+\usepackage{geometry}
+
+\geometry{a4paper,scale=0.8}
+
+\title{HPC Lab \#1 Report}
+\date{}
+\author{Shitong CHAI}
+
+
+\begin{document}
+\maketitle
+
+% \begin{enumerate}
+\section{Supercomputer}
+A supercomputer is a computer with a high level of performance compared to a general-purpose computer. The performance of a supercomputer is commonly measured in floating-point operations per second ($\textup{FLOPS}=\textup{sockets} \times \frac{\textup{cores}}{\textup{socket}} \times \textup{clock} \times \frac{\textup{FLOPs}}{\textup{cycle}}$) instead of million instructions per second (MIPS). IBM Naval Ordonance Research Calculator is the first supercomputer. Since 2019, there are supercomputers which can perform over 180 TFLOPS($10^{18}$FLOPS Summit). The ranking is Summit(US), Sunway TaihuLight(China), Sierra(US), Tianhe-2A(China), AI Bridging Cloud Infrastructure(Japan).
+
+Supercomputers have been used for: Weather forecasting, Fluid dynamics, Simulations of particle physics and astrophysics and for many stochastic applications. 
+
+LINPACK benchmark score is used to rank supercomputers, the \textbf{Rpeak} score describes its theoretical peak performance and \textbf{Rmax} score describes its maximal achieved performance.
+
+Cray's first design had a piplined scalar architecture and multi-processors. In 1972, Cray Research used vector processing instead of multiprocessor architecture. 
+
+A \textbf{superscalar processor} is a mixture of scalar processors and vector processors, consists of ALUs(Arithmetic Logic Unit), FPUs(Floating-Point Unit) and vector units. A dispatcher keeps all the units fed with instructions.
+
+\section{Computing cluster}
+A computer cluster is a set of loosely or tightly connected computers that work together so that, in many respects, they can be viewed as a single system. Unlike grid computers, computer clusters have each node set to perform the same task, controlled and scheduled by software. 
+
+The components of a cluster are usually connected to each other through fast local area networks, with each node (computer used as a server) running its own instance of an operating system. In most circumstances, all of the nodes use the same hardware and the same operating system, although in some setups (e.g. using Open Source Cluster Application Resources (OSCAR)), different operating systems can be used on each computer, or different hardware.
+
+"Load-balancing" clusters are configurations in which cluster-nodes share computational workload(eg: with round-robin method) to provide better overall performance.\cite{sloan2004high}
+
+"High-availability clusters" (also known as failover clusters, or HA clusters) improve the availability of the cluster approach. They operate by having redundant nodes, which are then used to provide service when system components fail. HA cluster implementations attempt to use redundancy of cluster components to eliminate single points of failure.
+
+In a Beowulf cluster, the application programs never see the computational nodes (also called slave computers) but only interact with the "Master" which is a specific computer handling the scheduling and management of the slaves.\cite{dayde2005high}In a typical implementation the Master has two network interfaces, one that communicates with the private Beowulf network for the slaves, the other for the general purpose network of the organization. The slave computers typically have their own version of the same operating system, and local memory and disk space. However, the private slave network may also have a large and shared file server that stores global persistent data, accessed by the slaves as needed.
+
+To date clusters do not typically use physically shared memory. However, the use of a clustered file system is essential in modern computer clusters. Two widely used approaches for communication between cluster nodes are MPI (Message Passing Interface) and PVM (Parallel Virtual Machine).\cite{milicchio2007distributed} MPI implementations typically use TCP/IP and socket connections. PVM provides a run-time environment for message-passing, task and resource management, and fault notification.
+
+
+
+
+\section{Computing grid}
+Grid Computing is based on the philosophy of information and electricity sharing, allowing us to access to another kind of heterogeneous and geographically separated resources(Computational resources, Storage elements, Specific applications, Equipment...). Sharing characteristics: uniformity, transparency, reliability, security, efficiency. Grid is based on Internet protocols and Ideas of parallel and distributed computing\cite{perezgrid}. 
+
+A Grid is a system that coordinates resources that are not subject to a centralized control using standard, open, general-purpose protocols and interfaces to deliver nontrivial qualities of services\cite{foster2002grid}. Grid Computing is used in applications with the following characteristics: Have a community of distributed users, Need a great computational power, Need a great storage capacity. Grid elements: Resource providers, Broker, Requesters.
+
+
+
+\section{Constellations}
+
+
+Commodity clusters usually comprise two levels of parallelism. The first level is the number of nodes connected by the global communications network where a node contains all of the processor and memory resources of the cluster. The second level is the number of processors in each node, usually configured as an SMP (symmetric multiprocessor). If there are more nodes in a commodity cluster than microprocessors in any one of its nodes, then the dominant mode of parallelism is at the first level and this is represented in the category of “cluster-NOW”. If there are more microprocessors in a node than there are nodes in the commodity cluster, then the dominant mode of parallelism is at the second level and this is referred to as a “constellation”. It is likely that a cluster-NOW system will be programmed almost exclusively with MPI using a message-passing model, while a constellation is likely to be programmed, at least in part, with OpenMP using a threaded model. Very often a constellation will be space shared with each user getting his/her own node\cite{dongarra2005high}.
+
+\section{SMP}
+
+
+Symmetric multiprocessing (SMP) involves a multiprocessor computer hardware and software architecture where two or more identical processors are connected to a single, shared main memory, have full access to all input and output devices, and are controlled by a single operating system instance that treats all processors equally, reserving none for special purposes. Most multiprocessor systems today use an SMP architecture. In the case of multi-core processors, the SMP architecture applies to the cores, treating them as separate processors. 
+
+The term SMP is widely used but causes a bit of confusion. The more precise description of what is intended by SMP is a shared memory multiprocessor where the cost of accessing a memory location is the same for all processors; that is, it has uniform access costs when the access actually is to memory. If the location is cached, the access will be faster, but cache access times and memory access times are the same on all processors\cite{culler1999parallel}.
+
+Time-sharing and server systems can often use SMP without changes to applications, as they may have multiple processes running in parallel, and a system with more than one process running can run different processes on different processors. If the system rarely runs more than one process at a time, SMP is useful only for applications that have been modified for multithreaded (multitasked) processing. Custom-programmed software can be written or modified to use multiple threads, so that it can make use of multiple processors. However, there are a few limits on the scalability of SMP due to cache coherence and shared objects. 
+
+\section{Distributed Memory}
+
+In computer science, distributed memory refers to a multiprocessor computer system in which each processor has its own private memory. Computational tasks can only operate on local data, and if remote data is required, the computational task must communicate with one or more remote processors.
+
+In a distributed memory system there is typically a processor, a memory, and some form of interconnection that allows programs on each processor to interact with each other. The interconnect can be organised with point to point links or separate hardware can provide a switching network. The network topology is a key factor in determining how the multiprocessor machine scales. The links between nodes can be implemented using some standard network protocol (for example Ethernet), using bespoke network links (used in for example the Transputer), or using dual-ported memories. 
+
+\section{Shared Memory}
+
+In computer science, shared memory is memory that may be simultaneously accessed by multiple programs with an intent to provide communication among them or avoid redundant copies. Shared memory is an efficient means of passing data between programs. Depending on context, programs may run on a single processor or on multiple separate processors. 
+
+Shared memory systems may use: uniform memory access (UMA), non-uniform memory access (NUMA), cache-only memory architecture (COMA).
+
+The issue with shared memory systems is that many CPUs need fast access to memory and will likely cache memory, which has two complications: access time degradation and lack of data coherence.
+
+In computer software, shared memory is either a method of inter-process communication (IPC i.e. a way of exchanging data between programs running at the same time), or a method of conserving memory space (by directing accesses to what would ordinarily be copies of a piece of data to a single instance instead, by using virtual memory mappings or with explicit support of the program in question).
+
+\section{Granularity}
+
+In parallel computing, granularity means the amount of computation in relation to communication, i.e., the ratio of computation to the amount of communication. Fine-grained parallelism means individual tasks are relatively small in terms of code size and execution time. The finer the granularity, the greater the potential for parallelism and hence speed-up, but the greater the overheads of synchronization and communication.
+
+\section{Scalability}
+
+Scaling horizontally (out/in) means adding more nodes to (or removing nodes from) a system, such as adding a new computer to a distributed software application. Scaling vertically (up/down) means adding resources to (or removing resources from) a single node, typically involving the addition of CPUs, memory or storage to a single computer\cite{el2005advanced}.
+
+\section{Speedup}
+
+Speedup is a number that measures the relative performance of two systems processing the same problem. More technically, it is the improvement in speed of execution of a task executed on two similar architectures with different resources. The notion of speedup was established by Amdahl's law, which was particularly focused on parallel processing. However, speedup can be used more generally to show the effect on performance after any resource enhancement. 
+
+Latency: 
+
+$$L=\frac{1}{v}=\frac{T}{W}$$
+
+where $v$ is the execution speed of the task; $T$ is the execution time of the task; $W$ is the execution workload of the task.
+
+Throughput is the execution rate of a task: 
+
+$$Q=\rho v A=\frac{\rho A W}{T}=\frac{\rho A}{L}$$
+
+where $\rho$ is the execution density (e.g., the number of stages in an instruction pipeline for a pipelined architecture); $A$ is the execution capacity (e.g., the number of processors for a parallel architecture).
+
+Speedup in latency: 
+
+$$S_{\textup{latency}}=\frac{L_1}{L_2}=\frac{T_1 W_2}{T_2 W_1}$$
+
+where $S_{\textup{latency}}$ is the speedup in latency of the architecture 2 with respect to the architecture 1.
+
+Speedup in throughput: 
+
+$$S_{\textup{throughput}}=\frac{Q_2}{Q_1}=\frac{\rho_2 A_2}{\rho_1 A_1} S_{\textup{latency}}$$
+
+\section{GP-GPU}
+
+GP-GPU is the use of a graphics processing unit (GPU), which typically handles computation only for computer graphics, to perform computation in applications traditionally handled by the central processing unit (CPU)\cite{fung2002mediated, aimone2003eyetap, fung2004computer, chitty2007data}.
+
+Essentially, a GPGPU pipeline is a kind of parallel processing between one or more GPUs and CPUs that analyzes data as if it were in image or other graphic form. While GPUs operate at lower frequencies, they typically have many times the number of cores. Thus, GPUs can process far more pictures and graphical data per second than a traditional CPU. Migrating data into graphical form and then using the GPU to scan and analyze it can create a large speedup. 
+
+\section{BigData}
+
+Big data represents the information assets characterized by such a high volume, velocity and variety to require specific technology and analytical methods for its transformation into value\cite{de2016formal}. Big data data sets are characterized by huge amounts (volume) of frequently updated data (velocity) in various formats, such as numeric, textual, or images/videos (variety)\cite{kaplan2019siri}.
+
+Big data can be described by the following characteristics: Volume, Variety, Velocity, Veracity\cite{hilbert2016big}.
+
+2012 studies showed that a multiple-layer architecture is one option to address the issues that big data presents. A distributed parallel architecture distributes data across multiple servers; these parallel execution environments can dramatically improve data processing speeds. This type of architecture inserts data into a parallel DBMS, which implements the use of MapReduce and Hadoop frameworks. This type of framework looks to make the processing power transparent to the end user by using a front-end application server\cite{boja2012distributed}.
+
+The data lake allows an organization to shift its focus from centralized control to a shared model to respond to the changing dynamics of information management. This enables quick segregation of data into the data lake, thereby reducing the overhead time.
+
+\section{MapReduce}
+
+MapReduce is a programming model and an associated implementation for processing and generating big data sets with a parallel, distributed algorithm on a cluster which is used in Apache Hadoop.
+
+A MapReduce framework (or system) is usually composed of three operations (or steps): 
+\begin{enumerate}
+\item{Map: each worker node applies the map function to the local data, and writes the output to a temporary storage. A master node ensures that only one copy of the redundant input data is processed.}
+\item{Shuffle: worker nodes redistribute data based on the output keys (produced by the map function), such that all data belonging to one key is located on the same worker node.}
+\item{Reduce: worker nodes now process each group of output data, per key, in parallel.}
+\end{enumerate}
+
+MapReduce allows for the distributed processing of the map and reduction operations. Maps can be performed in parallel, provided that each mapping operation is independent of the others; in practice, this is limited by the number of independent data sources and/or the number of CPUs near each source. Similarly, a set of 'reducers' can perform the reduction phase, provided that all outputs of the map operation that share the same key are presented to the same reducer at the same time, or that the reduction function is associative. 
+
+\section{Hadoop}
+
+Hadoop is a collection of open-source software utilities that facilitate using a network of many computers to solve problems involving massive amounts of data and computation. It provides a software framework for distributed storage and processing of big data using the MapReduce programming model. All the modules in Hadoop are designed with a fundamental assumption that hardware failures are common occurrences and should be automatically handled by the framework.
+
+The core of Apache Hadoop consists of a storage part, known as Hadoop Distributed File System (HDFS), and a processing part which is a MapReduce programming model. Hadoop splits files into large blocks and distributes them across nodes in a cluster. It then transfers packaged code into nodes to process the data in parallel. This approach takes advantage of data locality, where nodes manipulate the data they have access to. 
+
+The base Apache Hadoop framework is composed of the following modules: 
+\begin{enumerate}
+\item{Hadoop Common – contains libraries and utilities needed by other Hadoop modules;}
+\item{Hadoop Distributed File System (HDFS) – a distributed file-system that stores data on commodity machines, providing very high aggregate bandwidth across the cluster;}
+\item{Hadoop YARN – (introduced in 2012) a platform responsible for managing computing resources in clusters and using them for scheduling users' applications;}
+\item{Hadoop MapReduce – an implementation of the MapReduce programming model for large-scale data processing.}
+\end{enumerate}
+
+% \end{enumerate}
+
+\medskip
+ 
+\bibliographystyle{unsrt}
+\bibliography{HPC_lab1_reference}
+\end{document}

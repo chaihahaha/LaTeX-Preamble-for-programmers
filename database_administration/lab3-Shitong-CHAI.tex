@@ -1,0 +1,458 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+
+\newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\title{Database Management Experiment Report \#3}
+\author{Shitong CHAI}
+\date{\vspace{-5ex}}
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%% section 1
+\section{Data files and tablespaces}
+
+
+\begin{enumerate}
+%%%%%%%1
+\item{Display tablepsaces}
+\begin{sqlshell}
+select tablespace_name from dba_tablespaces;
+\end{sqlshell}
+\begin{messageshell}
+TABLESPACE_NAME
+------------------------------
+SYSTEM
+SYSAUX
+UNDOTBS1
+TEMP
+USERS
+
+\end{messageshell}
+
+%%%%%%%2
+\item{Display tablespaces with associated data files}
+\begin{sqlshell}
+select dba_data_files.tablespace_name, dba_data_files.file_name from dba_data_files join dba_tablespaces on dba_tablespaces.tablespace_name = dba_data_files.tablespace_name;
+\end{sqlshell}
+\begin{messageshell}
+
+TABLESPACE_NAME
+------------------------------
+FILE_NAME
+--------------------------------------------------------------------------------
+USERS
+/opt/oracle/oradata/ORCLCDB/users01.dbf
+
+UNDOTBS1
+/opt/oracle/oradata/ORCLCDB/undotbs01.dbf
+
+SYSTEM
+/opt/oracle/oradata/ORCLCDB/system01.dbf
+
+
+TABLESPACE_NAME
+------------------------------
+FILE_NAME
+--------------------------------------------------------------------------------
+SYSAUX
+/opt/oracle/oradata/ORCLCDB/sysaux01.dbf
+
+\end{messageshell}
+
+%%%%%%%3
+\item{Display default\_tablespaces for each user ( you can see dba\_users).}
+\begin{sqlshell}
+select username,default_tablespace from dba_users;
+\end{sqlshell}
+\begin{messageshell}
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+SYS
+SYSTEM
+
+SYSTEM
+SYSTEM
+
+XS\$NULL
+SYSTEM
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+OJVMSYS
+SYSTEM
+
+LBACSYS
+SYSTEM
+
+OUTLN
+SYSTEM
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+SYS\$UMF
+SYSTEM
+
+DBSNMP
+SYSAUX
+
+APPQOSSYS
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+DBSFWUSER
+SYSAUX
+
+GGSYS
+SYSAUX
+
+ANONYMOUS
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+CTXSYS
+SYSAUX
+
+DVF
+SYSAUX
+
+SI_INFORMTN_SCHEMA
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+DVSYS
+SYSAUX
+
+GSMADMIN_INTERNAL
+SYSAUX
+
+ORDPLUGINS
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+MDSYS
+SYSAUX
+
+OLAPSYS
+SYSAUX
+
+ORDDATA
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+XDB
+SYSAUX
+
+WMSYS
+SYSAUX
+
+ORDSYS
+SYSAUX
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+GSMCATUSER
+USERS
+
+MDDATA
+USERS
+
+SYSBACKUP
+USERS
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+REMOTE_SCHEDULER_AGENT
+USERS
+
+GSMUSER
+USERS
+
+SYSRAC
+USERS
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+AUDSYS
+USERS
+
+DIP
+USERS
+
+SYSKM
+USERS
+
+
+USERNAME
+--------------------------------------------------------------------------------
+DEFAULT_TABLESPACE
+------------------------------
+ORACLE_OCM
+USERS
+
+SCOTT
+USERS
+
+SYSDG
+USERS
+
+
+36 rows selected.
+
+\end{messageshell}
+
+%%%%%%%4
+\item{Allocate 400 kbytes additional space to the tablespace USERS and verify the result.}
+% https://docs.oracle.com/cd/B28359_01/server.111/b28310/dfiles003.htm#ADMIN11425
+
+Use select to get original tablespace size:
+\begin{sqlshell}
+select tablespace_name, bytes /1024  " size ( KB )" from dba_data_files; 
+\end{sqlshell}
+\begin{messageshell}
+TABLESPACE_NAME         size ( KB )
+------------------------------ ------------
+USERS                       5120
+UNDOTBS1                 317440
+SYSTEM                     890880
+SYSAUX                    1341440
+
+
+\end{messageshell}
+
+Allocate 400K more space to USERS:
+\begin{sqlshell}
+alter database datafile '/opt/oracle/oradata/orclcdb/users01.dbf' resize 5520k;
+\end{sqlshell}
+\begin{messageshell}
+
+Database altered.
+
+\end{messageshell}
+
+Use select to verify the result:
+\begin{sqlshell}
+select tablespace_name, bytes /1024  " size ( KB )" from dba_data_files; %to check size
+\end{sqlshell}
+\begin{messageshell}
+TABLESPACE_NAME         size ( KB )
+------------------------------ ------------
+USERS                       5520
+UNDOTBS1                 317440
+SYSTEM                     890880
+SYSAUX                    1341440
+
+\end{messageshell}
+
+%%%%%%%%%%%%5
+\item{Create a tablespace DATA1TBS with the datafile /home/oracle/DISK2/data01.dbf (initial file size : 2M, maximum file size : 5M). Activate the 500K automatic extension if additional extents are required.}
+\begin{commandshell}
+cd /home/oracle 
+mkdir DISK2
+\end{commandshell}
+\begin{sqlshell}
+create tablespace DATA1TBS datafile '/home/oracle/DISK2/data01.dbf' size 2m autoextend on next 500k maxsize 5m;
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace created.
+
+\end{messageshell}
+
+%%%%%%%%%%%%6
+\item{Move the tablespace DATA1TBS in the directoy DISK4 }
+\begin{commandshell}
+mkdir /home/oracle/DISK4
+cp /home/oracle/DISK2/data01.dbf /home/oracle/DISK4/data01.dbf
+\end{commandshell}
+\begin{sqlshell}
+alter tablespace DATA1TBS offline normal;
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace altered.
+\end{messageshell}
+
+\begin{sqlshell}
+alter tablespace DATA1TBS rename datafile '/home/oracle/DISK2/data01.dbf' to '/home/oracle/DISK4/data01.dbf';
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace altered.
+\end{messageshell}
+
+%%%%%%%%%%%%7
+\item{Create a tablespace RONLY. create a table in RONLY. Put the tablespace in read-only mode. Try to create another table in RONLY tablespace.}
+\begin{sqlshell}
+create tablespace RONLY datafile '/home/oracle/DISK2/data02.dbf' size 2m autoextend on next 500k maxsize 5m;
+create table tbl (startdate DATE, enddate DATE, class CHAR(20)) tablespace RONLY;
+alter tablespace RONLY read only;
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace created.
+Table created.
+Tablespace altered.
+\end{messageshell}
+\begin{sqlshell}
+create table tbl2 (startdate DATE, enddate DATE, class CHAR(20)) tablespace RONLY;
+\end{sqlshell}
+\begin{messageshell}
+create table tbl2 (startdate DATE, enddate DATE, class CHAR(20)) tablespace RONLY
+*
+ERROR at line 1:
+ORA-01647: tablespace 'RONLY' is read-only, cannot allocate space in it
+
+\end{messageshell}
+%%%%%%%%%%%8
+\item{Delete the tablespace RONLY and check the operation. (you must physically delete the associated files to the tablespace by yourserf.)}
+\begin{sqlshell}
+drop tablespace RONLY including contents;
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace dropped.
+
+\end{messageshell}
+\begin{commandshell}
+rm data02.dbf
+\end{commandshell}
+
+%%%%%%%%%%%9
+\item{Create a temporary tablespace TEMPY. Check the operation.}
+\begin{sqlshell}
+create temporary tablespace TEMPY tempfile 'temp01.dbf' size 5m autoextend on;
+\end{sqlshell}
+\begin{messageshell}
+
+Tablespace created.
+
+\end{messageshell}
+\begin{sqlshell}
+select tablespace_name from dba_tablespaces;
+\end{sqlshell}
+\begin{messageshell}
+
+TABLESPACE_NAME
+------------------------------
+SYSTEM
+SYSAUX
+UNDOTBS1
+TEMP
+USERS
+DATA1TBS
+TEMPY
+
+7 rows selected.
+\end{messageshell}
+\end{enumerate}
+
+%%%%%%%%%%%%%%% section 1
+\section{Segments }
+\begin{enumerate}
+\item{Identify the different types of segments in the database.}
+\begin{sqlshell}
+select distinct segment_type from dba_segments;
+\end{sqlshell}
+\begin{messageshell}
+SEGMENT_TYPE
+------------------
+INDEX
+CLUSTER
+TABLE PARTITION
+LOBINDEX
+TABLE SUBPARTITION
+SYSTEM STATISTICS
+LOBSEGMENT
+INDEX PARTITION
+ROLLBACK
+TABLE
+LOB PARTITION
+
+SEGMENT_TYPE
+------------------
+NESTED TABLE
+TYPE2 UNDO
+DEFERRED ROLLBACK
+
+14 rows selected.
+\end{messageshell}
+
+\item{What are the files containing the data of the EMP table of scott?}
+
+\begin{sqlshell}
+select b.file_name from dba_extents a, dba_data_files b where a.file_id=b.file_id and segment_name='EMP' and owner='SCOTT';
+\end{sqlshell}
+\begin{messageshell}
+
+FILE_NAME
+--------------------------------------------------------------------------------
+/opt/oracle/oradata/ORCLCDB/users01.dbf
+
+\end{messageshell}
+\item{Display the free space by tablespace. }
+\begin{messageshell}
+SQL> select tablespace_name, round(sum(bytes)/1024/1024 ,2) FreeMB
+            from dba_free_space group by tablespace_name;
+\end{messageshell}
+\begin{messageshell}
+TABLESPACE_NAME            FREEMB
+------------------------------ ----------
+SYSTEM                     5.38
+SYSAUX                     89.5
+UNDOTBS1               292.75
+USERS                     4.19
+
+\end{messageshell}
+\end{enumerate}
+
+\end{document}

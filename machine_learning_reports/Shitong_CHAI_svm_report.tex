@@ -1,0 +1,1101 @@
+\documentclass[a4paper]{report}
+\usepackage{amsmath, amsthm, amsfonts}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{enumitem}
+
+\usepackage{hyperref}
+
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\fancyhf{}
+\rhead{\rightmark}
+\cfoot{\thepage}
+
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}[section]
+
+\title{SVM Report}
+\date{}
+\author{Shitong CHAI}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Lagrange multipliers}
+
+\section{Constrained extremum}
+
+To solve a constrained optimization problem with equation constraint, we can use the method of Lagrange multipliers. The main idea of Lagrange multipliers is to transform the equation constraint into the Lagrangian function, which will turn a constrained optimization problem into an unconstrained optimization problem. But to prove this, we have to use the Implicit function theorem. We have learnt that if we have an equation $P(x,y)=0$, then by solve the equation $\frac{\partial P(x,y)}{\partial x}=0$
+with the help of the chain rule, we can get $y^\prime (x)$. But for normed affine spaces, or more specifically, vector spaces, we have to use the following more general version of Implicit function theorem
+
+\begin{theorem}
+    (Implicit function theorem\cite{gallier2019algebra}) Let E,F, and G be normed affine spaces, let $\Omega$ be an open subset of $E\times F$, let $f:\Omega\to G$ be a function defined on $\Omega$, let $(a,b)\in \Omega$, let $c\in G$, and assume that $f(a,b)=c$. If the following assumptions hold
+    \begin{enumerate}[label={(\arabic*)}]
+        \item The function $f:\Omega\to G$ is continuous on $\Omega$;
+        \item F and G are complete normed affine space
+        \item $\frac{\partial f}{\partial y}(x,y)$ exists for every $(x,y)\in \Omega$, and $\frac{\partial f}{\partial y}:\Omega\to\mathcal L (\vec F;\vec G)$ is continuous;
+        \item $\frac{\partial f}{\partial y}(a,b)$ is a bijection of $\mathcal L (\vec F;\vec G)$, and $\left(\frac{\partial f}{\partial y}(a,b)\right)^{-1} \in \mathcal L (\vec G;\vec F)$
+    \end{enumerate}
+    then the following properties hold:
+    \begin{enumerate}[label={(\alph*)}]
+        \item There exist some open subset $A\subseteq E$ containing a and some open subset $B\subseteq F$ containing b, such that $A\times B\subseteq \Omega$, and for every $x\in A$, the equation $f(x,y)=c$ has a single solution $y=g(x)$, and thus, there is a unique function $g:A\to B$ such that $f(x,g(x))=c$, for all $x\in A$;
+        \item The function $g:A\in B$ is continuous.
+        \item If the derivative $\mathrm D f(a,b)$ exists, then the derivative $\mathrm D g(a)$ exists, and 
+            \[
+                \mathrm D g(a)=-\left( \frac{\partial f}{\partial y} (a,b)\right)^{-1} \circ \frac{\partial f}{\partial x} (a,b);
+            \]
+            and if in addition, $\frac{\partial f}{\partial x}:\Omega\to\mathcal L (\vec E;\vec G)$ is also continuous ($f\in C^1$ on $\Omega$), then the derivative $\mathrm D g:A\to \mathcal L (\vec E; \vec F)$ is continuous, and $\forall x\in A$, 
+            \[
+                \mathrm D g(x)=-\left( \frac{\partial f}{\partial y} (x,g(x))\right)^{-1} \circ \frac{\partial f}{\partial x} (x,g(x));
+            \]
+
+    \end{enumerate}
+\end{theorem}
+
+Notice that implicit function theorem holds for affine spaces $E=(E,\vec E,+)$, where $\vec E$ is a vector space associated with point set $E$. And $\frac{\partial f}{\partial y}(x,y)\in \mathcal L (\vec F;\vec G)$ is a linear form from vector space $\vec F$ to vector space $\vec G$, not a map from point set $F$ to point set $G$.
+
+Given a real-valued function $J:\Omega\to\mathbb R$ defined on open set $\Omega\subseteq E$, where $E$ is a normed vector space and $U=\{x\in\Omega |\ \varphi_i(x)=0, 1\leq i\leq m\}$ (where the functions $\varphi_i:\Omega\to\mathbb R$ are continuous), then $J$ has a local extremum at the point $u\in U$ with respect to $U$.
+
+A necessary condition to find the constrained extrema is Lagrange multipliers.
+
+More generally, when $\Omega\subseteq E_1\times E_2$ is an open subset of a product of normed vector spaces and feasible region defined by equation constriants $U=\{(u_1,u_2)\in\Omega |\  \varphi(u_1,u_2)=0\}$ for a continuous function $\varphi:\Omega\to E_2$, the following condition holds.
+
+\begin{theorem}
+    (Necessary condition for a constrained extremum\cite{gallier2019algebra}) Let $\Omega\subseteq E_1 \times E_2$ be an open subset of a product of normed vector spaces, with $E_1$ a Banach space, let $\varphi: \Omega\to E_2$ be a $C^1$-function, and let
+
+    \[
+        U=\{(u_1,u_2)\in \Omega |\ \varphi (u_1, u_2)=0\}.
+    \]
+
+    Moreover, let $u=(u_1,u_2)\in U$ be a point such that
+
+    \[
+        \frac{\partial \varphi}{\partial x_2}(u_1,u_2)\in \mathcal L (E_2;E_2)\ and\ \left(\frac{\partial \varphi}{\partial x_2}(u_1,u_2)\right)^{-1}\in \mathcal L (E_2;E_2),
+    \]
+
+    and let $J : \Omega \to \mathbb R $ be a function which is differentiable at u. If J has a constrained local extremum at u, then there is a continuous linear form $\Lambda(u)\in\mathcal L (E_2;\mathbb R)$ such that
+
+    \[
+        dJ(u)+\Lambda(u)\circ d\varphi(u)=0.
+    \]
+
+\end{theorem}
+\begin{proof}
+    Use implicit function theorem, there exist some open subsets $U_1\subseteq E_1,U_2\subseteq E_2$, and a continuous function $g:U_1\to U_2$ with $(u_1,u_2)\in U_1\times U_2 \subseteq \Omega$ such that $\forall v_1\in U_1$
+
+    \[
+        \varphi(v_1,g(v_1))=0,
+    \]
+
+    $g$ is differentiable at $u_1\in U_1$ and
+
+    \[
+        dg(u_1)=-\left( \frac{\partial \varphi}{\partial x_1}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u).
+    \]
+
+    So we have a single variable function $G$ with
+
+    \[
+        G(v_1)=J(v_1,g(v_1))
+    \]
+
+    for all $v_1\in U_1$ and $G$ is differentiable at $u_1$ and it has a local extremum at $u_1$ on $U_1$, with
+
+    \[
+        dG(u_1)=0
+    \]
+
+    By the chain rule,
+
+    \[
+        dG(u_1)=\frac{\partial J}{\partial x_1}(u) - \frac{\partial J}{\partial x_2}(u)\circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u)=0.
+    \]
+
+    then
+
+    \[
+        \frac{\partial J}{\partial x_1}(u)=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_1}(u),
+    \]
+
+    and trivially
+
+    \[
+        \frac{\partial J}{\partial x_2}(u)=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2}(u) \right)^{-1} \circ \frac{\partial \varphi}{\partial x_2}(u),
+    \]
+
+    So if we let $\Lambda(u)=-\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2} (u) \right)^{-1}$, then we can get
+
+    \begin{align*}
+        dJ(u) &=\frac{\partial J}{\partial x_1}(u)+\frac{\partial J}{\partial x_2}(u) \\
+        &=\frac{\partial J}{\partial x_2}(u) \circ \left( \frac{\partial \varphi}{\partial x_2} (u) \right)^{-1} \circ \left( \frac{\partial \varphi}{\partial x_1} (u) + \frac{\partial \varphi}{\partial x_2} (u)   \right) \\
+        &=-\Lambda(u)\circ d\varphi (u),
+    \end{align*}
+\end{proof}
+
+\section{Lagrange Multipliers}
+
+Lagrange multiplier method is just the special case of Theorem 1.1.2 when $E_1=\mathbb R^{n-m}$ and $E_2=\mathbb R^m$, $1\leq m < n\in \mathbb N$, $\Omega\subseteq\mathbb R^n$ is an open set, $J:\Omega\to\mathbb R$ and for $m$ functions $\varphi_i:\Omega\to\mathbb R$, we have $U\subseteq \Omega$
+
+\[
+    U=\{v\in\Omega|\ \varphi_i(v)=0,1\leq i\leq m\}
+\]
+
+Then we have the necessary condition for a constrained extremum in terms of Lagrange multipliers
+
+\begin{theorem}
+    (Necessary condition for a constrained extremum in terms of Lagrange multipliers\cite{gallier2019algebra}) Let $\Omega$ be an open subset of $\mathbb R^n$, for m functions $\varphi_i\in C^1:\Omega\to\mathbb R$ with $1\leq m < n$, let
+    \[
+        U=\{v\in\Omega|\ \varphi_i(v)=0,1\leq i\leq m\},
+    \]
+    and let $u\in U$ such that $d\varphi_i(u)\in\mathcal L(\mathbb R^n;\mathbb R)$ are linearly independent. If $J:\Omega\to \mathbb R$ is a differentiable function at $u\in U$ and if J has a local constrained extremum at u, then $\exists!$ $\lambda_i(u)\in\mathbb R$, $i=1,2,\cdots,m$, such that
+    \[
+        dJ(u)+\lambda_1(u)d\varphi_1(u)+\cdots+\lambda_m(u)d\varphi_m(u)=0;
+    \]
+    equivalently,
+    \[
+        \nabla J(u)+\lambda_1(u)\nabla\varphi_1(u)+\cdots+\lambda_m(u)\nabla\varphi_m(u)=0.
+    \]
+\end{theorem}
+\begin{proof}
+    Use Theorem 1.1.2 to prove. Notice that this theorem is a special case of Theorem 1.1.2 where $\Lambda(u)\in \mathcal L(\mathbb R^m;\mathbb R)$, such that the equation
+    \[
+        dJ(u)+\Lambda(u)\circ d\varphi(u)=0
+    \]
+    can be rewritten as 
+    \[
+        dJ(u)+\lambda_1(u)d\varphi_1(u)+\cdots+\lambda_m(u)d\varphi_m(u)=0;
+    \]
+\end{proof}
+
+The common format to state the use of Lagrange multipliers in a constrained optimization problem is by introducing Lagrangian. 
+
+Lagrangian is a function $L:\Omega\times\mathbb R^m\to\mathbb R$ given by
+
+\[
+    L(v,\lambda)=J(v)+\lambda_1\varphi_1(v)+\cdots+\lambda_m\varphi_m(v)
+\]
+
+with $\lambda=(\lambda_1,\cdots,\lambda_m)$. 
+
+And we have $\exists \mu=(\mu_1,\cdots,\mu_m), u\in U$ such that
+
+\[
+    dJ(u)+\mu_1(u)d\varphi_1(u)+\cdots+\mu_m(u)d\varphi_m(u)=0
+\]
+
+iff
+
+\[
+    dL(u,\mu)=0,
+\]
+equivalently,
+\[
+    \nabla L(u,\mu)=0.
+\]
+
+
+\chapter{KKT conditions, Slater's conditions, Dual problem}
+\section{Introduction to nonlinear optimization}
+In order to keep the generality, we should talk in the context of Hilbert space. To define Hilbert space, we will firstly define Hermitian form, then Hermitian space, which is the generalization of the concept of Euclidean space to complex field.
+
+Hermitian form is a special complex vector function.
+\begin{definition}
+    (Hermitian form\cite{gallier2019algebra}) If a function $\varphi :E\times E\to \mathbb C$ is sesquilinear and $\forall u,v\in E$, we have 
+    \[
+        \varphi(v,u)=\overline{\varphi(u,v)},
+    \]
+    then it is a Hermitian form.
+\end{definition}
+
+Hermitian space is just the space which has a positive definite Hermitian form.
+
+\begin{definition}
+    (Hermitian Space\cite{gallier2019algebra}) Given a complex vector space E, a Hermitian form $\varphi:E\times E\to \mathbb C$ is positive if $\varphi(u,u)\geq 0$ for all $u\in E$, and positive definite if $\varphi(u,u)>0$ for all $u\neq 0$. A pair $\langle E,\varphi \rangle$ where E is a complex vector space and $\varphi$ is a Hermitian form on E is called a pre-Hilbert space if $\varphi$ is positive, and a Hermitian space if $\varphi$ is positive definite.
+\end{definition}
+
+Hilbert space is a complete normed vector Hermitian space whose norm is induced by its Hermitian form.
+
+\begin{definition}
+    (Hilbert Space\cite{gallier2019algebra}) A (complex) Hermitian space $\langle E,\varphi \rangle$ which is a complete normed vector space under the norm $||\cdot||$ induced by $\varphi$ is called a Hilbert space.
+\end{definition}
+
+Projection lemma states that there is a unique projection vector in Hilbert space.
+
+\begin{theorem}
+    (Projection lemma\cite{gallier2019algebra}) Let E be a Hilbert space.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item For any nonempty convex and closed subset $X\subseteq E$, for any $u\in E$, there is a unique vector $p_X(u)\in X$ such that
+            \[
+                ||u-p_X(u)||=\inf_{v\in X} ||u-v||=d(u,X).
+            \]
+        \item The vector $p_X(u)$ is the unique vector $w\in E$ satisfying the following property
+            \[
+                w\in X \quad and \quad \mathfrak R \langle u-w,z-w \rangle \leq 0 \quad \forall z\in X.
+            \]
+        \item If X is a nonempty closed subspace of E then the vector $p_X(u)$ is the unique vector $w\in E$ satisfying the following property:
+            \[
+                w\in X \quad and \quad \langle u-w, z \rangle = 0 \quad \forall z\in X.
+            \]
+    \end{enumerate}
+\end{theorem}
+
+The vector defined in the projection lemma is called a projection.
+
+\begin{definition}
+    (Projection\cite{gallier2019algebra}) The vector $p_X(u)$ is called the projection of u onto X, the map $p_X:E\to X$ is called the projection of E onto X.
+\end{definition}
+
+For the sake of simplicity in notation, we will define the cone of feasible directions. Cone of feasible directions of point $u$ is just the affine translation of the subspace of vector space which is all the directions that a vector starting from point $u$ can take.
+
+\begin{definition}
+    (cone of feasible directions\cite{gallier2019algebra}) Let V be a normed vector space and let U be a nonempty subset of V. For any point $u\in U$, the cone $C(u)$ of feasible directions at u is the union of $\{0\}$ and the set of all nonzero vectors $w\in V$ for which there exists some convergent sequence $(u_k)_{k\geq 0}$ of vectors such that
+    \begin{enumerate}[label={(\arabic*)}]
+        \item $u_k\in U$ and $u_k\neq u$ for all $k\geq 0$, and $\lim_{k\to \infty} u_k = u$.
+        \item $\lim_{k\to\infty} \frac{u_k-u}{||u_k-u||} = \frac{w}{||w||}$, with $w\neq 0$.
+    \end{enumerate}
+\end{definition}
+
+Having all the definitions and theorems, we can prove the Farkas-Minkowski lemma which is can be used to prove the correctness of KKT conditions.
+
+\begin{theorem}
+    (Farkas-Minkowski Lemma\cite{gallier2019algebra}) Let $(V,\langle -,- \rangle)$ be a real Hilbert space. For any finite sequence of vectors $(a_1,\cdots,a_m)$ with $a_i\in V$, if C is the polyhedral cone $C=\mathrm{cone}(a_1,\cdots,a_m)=\{ \sum_{i=1}^{m} \lambda_i a_i, \ \lambda_i\in \mathbb R, \ \lambda_i \geq 0\}$, then for any vector $b\in V$, we have $b\notin C$ iff there is a vector $u\in V$ such that
+    \[
+        \langle a_i, u\rangle \geq 0 \quad i=1,\cdots,m \quad and \quad \langle b, u \rangle <0.
+    \]
+    Equivalently, $b\in C$ if for all $u\in V$,
+    \[
+        if \quad \langle a_i,u\rangle \geq 0 \quad i=1,\cdots,m\quad then \ \langle b,u\rangle \geq 0.
+    \]
+\end{theorem}
+
+\begin{proof}
+    Claim: If C is a nonempty, closed, convex subset of a Hilbert space V, and $b\in V$, and $b\in V$ is any vector such that $b\notin C$, then there exist some $u\in V$ and infinitely many scalars $\alpha\in \mathbb R$ such that
+    \begin{align*}
+        &\forall v\in C, \ \langle v,u\rangle >\alpha \\
+        &\langle b,u\rangle <\alpha \\
+    \end{align*}
+    This claim is proved as follows
+
+    Use projection lemma, since $b\notin C$, $\exists! c=p_C(b)\in C$ such that
+    \[
+        ||b-c||=\inf_{v\in C} || b-v|| >0
+    \]
+    \[
+        \forall v\in C, \quad \langle b-c,v-c \rangle \leq 0 \Leftrightarrow \langle v-c,c-b\rangle \geq 0 \Leftrightarrow \langle v,c-b\rangle\geq\langle c,c-b\rangle
+    \]
+    If we pick $u=c-b$ and some $\alpha<\langle c,c-b\rangle$ such that
+    \[
+        \langle c,c-b\rangle>\alpha>\langle b,c-b\rangle
+    \]
+    the claim is satisfied.
+
+    Then we prove the Farkas-Minkowski lemma using this claim.
+
+    Assume that $b\notin C$. Since C is nonempty, convex and closed, by the claim there is some $u\in V$ and some $\alpha\in \mathbb R$ such that
+    \[
+        \forall v\in C, \langle v,u \rangle >\alpha
+        \langle b,u\rangle <\alpha.
+    \]
+    But C is a polyhedral cone containing 0 which means $\langle v,u\rangle$ can take 0 value, so we have $\alpha<0$. Then for every $v\in C$, since C is a polyhedral cone, $\forall \lambda >0$, if $v\in C$ then $\lambda v\in C$, so we have
+    \begin{center}
+        $\langle v,u\rangle >\frac{\alpha}{\lambda}$ for every $\lambda>0$,
+    \end{center}
+    which implies that
+    \[
+        \langle v,u\rangle\geq 0.
+    \]
+    So considering $a_i\in C$ for $i=1,\cdots,m$, we have 
+    \begin{center}
+        $\langle a_i,u\rangle \geq 0$ $i=1,\cdots,m$ and $\langle b,u\rangle <\alpha<0$,
+    \end{center}
+\end{proof}
+
+From Farkas-Minkowski Lemma, we can easily obtain this specialized theorem. 
+\begin{theorem}
+    (Farkas-Minkowski\cite{gallier2019algebra}) Let V be a Euclidean space of finite dimension with inner product $\langle -,-\rangle$(or a Hilbert space). For any finite family $(a_1,\cdots,a_m)$ of m vectors $a_i\in V$ and any vector $b\in V$, if for any $v\in V$,
+    \begin{center}
+        if $\langle a_i, v\rangle \geq 0$ for $i=1,\cdots,m$ then $\langle b,v\rangle\geq 0$,
+    \end{center}
+    then there exist $\lambda_1,\cdots,\lambda_m\in \mathbb R$ such that
+    \begin{center}
+        $\lambda_i\geq 0$ for $i=1,\cdots,m$, and $b=\sum\limits_{i=1}^m \lambda_ia_i$,
+    \end{center}
+    that is, b belong to the polyhedral cone $\mathrm{cone} (a_1,\cdots,a_m)$.
+    %If $\forall y\in (\mathbb R^m)^*, yA\geq 0_n^\top \Rightarrow yb\geq 0$, then linear system $Ax=b$ has a solution $x\geq 0$.
+\end{theorem}
+
+If we have a function $J(u)$ which has a constrained minimum $u\in U$, we know the derivative of this function around the point $u$ in the direction of all the feasible directions should be greater than zero, otherwise there will be a smaller value around $u$ which means $u$ is not a constrained minimum anymore. This is formalized by the following theorem.
+
+\begin{theorem}
+    Let U be any nonempty subset of a normed vector space V.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item For any $u\in U$, the cone $C(u)$ of feasible directions at u is closed.
+        \item Let $J:\Omega\to \mathbb R$ be a function defined on an open subset $\Omega$ containing U. If J has a local minimum with respect to the set U at a point $u\in U$, and if $J^\prime_u$ exists at u, then
+            \[
+                \forall v\in u+C(u),\ J^\prime_u(v-u)\geq 0
+            \]
+    \end{enumerate}
+\end{theorem}
+
+If we have inequality constraints, we can use the following theorem to get the constraints on the derivatives.
+
+\begin{theorem}
+    Let u be any point of the set
+    \[
+        U=\{x\in \Omega|\ \varphi_i(x)\leq0,\ 1\leq i\leq m\},
+    \]
+    where $\Omega$ is an open subset of the normed vector space V, and assume that the functions $\varphi_i$ are differentiable at u for $i\in I(u)=\{i\in\{1,\cdots,m\}|\ \varphi_i(u)=0\}$
+. The the following facts hold:
+    \begin{enumerate}[label={(\arabic*)}]
+        \item The cone $C(u)$ of feasible directions at u is contained in the convex cone $C^*(u)$; that is,
+            \[
+                C(u)\subseteq C^*(u)=\{v\in V|\ (\varphi^\prime_i)_u(v)\leq 0, \ i\in I(u)\}.
+            \]
+        \item If the constraints are qualified at u and the functions $\varphi_i$ are continuous at u for all $i\notin I(u)$ if we only assume $\varphi_i$ differentiable at u for all $i\in I(u)$, then
+            \[
+                C(u)=C^*(u)
+            \]
+    \end{enumerate}
+\end{theorem}
+
+\section{KKT conditions and Slater's conditions}
+
+Given all the theorems and definitions in Section 2.1, we can get Karush-Kuhn-Tucker optimality conditions and Slater conditions.
+
+\begin{theorem}
+    (Karush-Kuhn-Tucker optimality conditions) Let $\varphi_i:\Omega\to \mathbb R$ be m constraints defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (more generally, a real Hilbert space V), let $J:\Omega\to \mathbb R$ be some function, and let U be given by
+    \[
+        U=\{x\in\Omega|\ \varphi_i(x)\leq0, \ 1\leq i\leq m\}.
+    \]
+    For any $u\in U$, let 
+    \[
+        I(u)=\{i\in\{1,\cdots,m\}|\ \varphi_i(u)=0\}.
+    \]
+    and assume that the functions $\varphi_i$ are differentiable at u for all $i\in I(u)$ and continuous at u for all $i\notin I(u)$. If J is differentiable at u, it has a local minimum at u with respect to U, and if the constraints are qualified at u, then there exist some scalars $\lambda_i(u)\in\mathbb R$ for all $i\in I(u)$, such that
+    \begin{center}
+        $J^\prime_u+\sum\limits_{i\in I(u)} \lambda_i(u)(\varphi^\prime_i)_u=0$, and $\lambda_i(u)\geq0$ for all $i\in I(u)$.
+    \end{center}
+    Equivalently, 
+    \begin{center}
+        $\nabla J_u+\sum\limits_{i\in I(u)} \lambda_i(u)\nabla(\varphi_i)_u=0$, and $\lambda_i(u)\geq0$ for all $i\in I(u)$.
+    \end{center}
+\end{theorem}
+\begin{proof}
+    Use Theorem 2.1.4, we have
+    \begin{align}
+        \forall w\in C(u) \ J^\prime_u(w)\geq 0.
+    \end{align}
+    Use Theorem 2.1.5, we have
+    \begin{align}
+        C(u)=C^*(u)=\{ v\in V|\  (\varphi^\prime_i)_u(v)\leq 0, \ i\in I(u)\},
+    \end{align}
+    by (2.1) and (2.2), we have
+    \begin{align}
+        if\ w\in C^*(u)\ then\ J^\prime_u(w)\geq 0,
+    \end{align}
+    
+    Under the musical isomorphism $\sharp:V^\prime\to V$, the vector $(J^\prime_u)^\sharp$ is the gradient $\nabla J_u$, so that
+    \begin{align}
+        J^\prime_u(w)=\langle w,\nabla J_u\rangle,
+    \end{align}
+    and the vector $((\varphi^\prime_i)_u)^\sharp$ is the gradient $\nabla(\varphi_i)_u$, so that
+    \begin{align}
+        (\varphi^\prime_i)_u(w)=\langle w,\nabla(\varphi_i)_u\rangle.
+    \end{align}
+    Using (2.4) and (2.5), (2.3) can be rewritten as 
+    \begin{center}
+        $\forall w\in V$, if $\langle w,-\nabla (\varphi_i)_u\rangle \geq 0$ for all $i\in I(u)$, then $\langle w, \nabla J_u\rangle \geq 0$.
+    \end{center}
+    Then we can use Farkas-Minkowski lemma (Theorem 2.1.3). So we have $\forall i\in I(u), \exists \lambda_i(u)\geq 0$, such that
+    \[
+        \nabla J_u = \sum_{i\in I(u)} \lambda_i(u) (-\nabla(\varphi_i)_u) \Leftrightarrow \nabla J_u+\sum_{i\in I(u)}\lambda_i(u)\nabla(\varphi_i)_u = 0
+    \]
+    using the musical isomorphism $\flat=\sharp^{-1}:V\to V^\prime$, we get
+    \[
+        J^\prime_u + \sum_{i\in I(u)}\lambda_i(u)(\varphi^\prime_i)_u=0,
+    \]
+\end{proof}
+
+For the sake of simplicity, we can also refer to the index set $I(u)$ by an additional constraint, so we have \emph{KKT conditions}.
+
+\begin{align}
+    &J^\prime_u+\sum_{i=1}^m\lambda_i(u)(\varphi^\prime_i)_u=0 \tag{$\mathrm{KKT}_1$} \label{kkt1}\\
+    &\lambda_i(u)\varphi_i(u)=0,\ \lambda_i(u)\geq 0,\ i=1,\cdots,m. \tag{$\mathrm{KKT}_2$} \label{kkt2}
+\end{align}
+
+Note that the second conditions \ref{kkt2}, is called \emph{complementary slackness} conditions because if constraint $\varphi_i$ is inactive at $u$, then $\lambda_i(u)=0$; if $\lambda_i(u)\neq 0$, then the constraint $\varphi_i$ is active at $u$, just like then slackness conditions in linear programs. The scalars $\lambda_i(u)$ are called \emph{generalized Lagrange multipliers}.
+
+Given a point $u$ in the feasible region, we want to know if the boundary defined by the constraints behaves nicely and has no singularity, which means the dual multipliers $\lambda_i(u)=0$, so we need the conditions for the qualification of constraints. If all of the constraints are affine, then they are qualified, but if the constraints are non-affine, we need additional specification of the constraints, that is, the functions $\varphi_i$ have to be \emph{convex}.
+
+\begin{definition}
+    (Slater's conditions) Let $U\subseteq \Omega \subseteq V$ given by 
+    \[
+        U=\{x\in\Omega|\ \varphi_i(x)\leq 0,\ 1\leq i\leq m\},
+    \]
+    where $\Omega$ is an open subset of the Euclidean vector space V. If the functions $\varphi_i:\Omega\to \mathbb R$ are convex, we say that the constraints are \emph{qualified} if the following conditions hold
+    \begin{enumerate}[label={(\alph*)}]
+        \item Either the constraints $\varphi_i$ are affine for all $i=1,\cdots,m$ and $U\neq \emptyset $, or
+        \item There is some vector $v\in \Omega$ such that the following conditions hold for $i=1,\cdots,m$
+            \begin{enumerate}[label={(\roman*)}]
+                \item $\varphi_i(v)\leq 0$.
+                \item If $\varphi_i$ is not affine, then $\varphi_i(v)<0$.
+            \end{enumerate}
+    \end{enumerate}
+\end{definition}
+
+The qualification conditions in the above are known as \emph{Slater's conditions}
+
+The following theorem is another version of KKT conditions for convex constraints.
+
+\begin{theorem}
+    (KKT conditions for convex constraints) Let $\varphi_i:\Omega\to \mathbb R$ be m convex constraints defined on some open convex subset $\Omega$ f a finite-dimensional Euclidean vector space V, let $J:\Omega\to\mathbb R$ be some function, let U be given by
+    \[
+        U=\{x\in\Omega|\ \varphi_i(x)\leq0, \ 1\leq i\leq m\}.
+    \]
+    and let $u\in U$ be any point such that the functions $\varphi_i$ and J are differentiable at u.
+    \begin{enumerate}[label={(\arabic*)}]
+        \item If J has a local minimum at u w.r.t. U, and if the constraints are qualified, then there exist some scalars $\lambda_i(u)\in\mathbb R$, such that the KKT conditions hold:
+            \[
+                J^\prime_u+\sum_{i=1}^m\lambda_i(u)(\varphi^\prime_i)_u=0
+            \]
+            \[
+                \sum_{i=1}^m\lambda_i(u)\varphi_i(u)=0,\ \lambda_i(u)\geq 0,\ i=1,\cdots,m.
+            \]
+        \item Conversely, if the restriction of J to U is convex and if there exist scalars $(\lambda_1,\cdots,\lambda_m)\in\mathbb R_+^m$ such that the KKT conditions hold, then the function J has a local minimum at u w.r.t. U.
+    \end{enumerate}
+\end{theorem}
+
+In addition to convex constraints, if the function $J$ is also convex, then KKT conditions will be sufficient to find a local minimum.
+
+According to the theorem in the above, we can introduce the \emph{generalized Lagrangian} $L:\Omega\times\mathbb R^m_+\to \mathbb R$ given by
+\[
+    L(v,\lambda)=J(v)+\sum_{i=1}^m\lambda_i\varphi_i(v),
+\]
+
+Then for a minimization problem
+\begin{align*}
+    &\min J(v) \\
+    &s.t.\ \varphi_i(v)\leq 0,\ i=1,\cdots,m.
+\end{align*}
+
+can be solved by the following conditions
+
+\begin{align}
+    &\frac{\partial L}{\partial u}(u)=0 \label{kktderi}\\
+    &J(u)=L(u,\lambda)
+\end{align}
+
+Then the constrained minimization problem is transformed into an unconstrained minimization problem of the function $L(v,\lambda)$.
+
+We can even absorb the inequality constraints into the generalized Lagrangian by the following unconstrained optimization problem.
+\[
+    \min_v \max_{\lambda\in\mathbb R_+^m} L(v,\lambda)
+\]
+
+%Denote $\max_{\lambda\in\mathbb R_+^m} L(v,\lambda)$ by a function $\theta:V\to \mathbb R$.
+
+Let $U$ be given by
+
+\[
+    U=\{x\in\Omega|\ \varphi_i(x)\leq 0,\ 1\leq i\leq m\}
+\]
+
+Consider 2 different conditions for this unconstrained minimization problem.
+
+Firstly, if all the inequalities hold, according to \ref{kkt2}, we will have $L(v,\lambda)=J(v)$, so
+\[
+    \min_v\max_{\lambda\in\mathbb R_+^m} L(v,\lambda) \Leftrightarrow \min_{v\in U} J(v)
+\]
+which is what we expect.
+
+Secondly, if the inequalities don't hold, we have at least one $1\leq i\leq m$ satisfying
+\[
+    \varphi_i(v)\geq 0,\ \lambda_i\geq 0
+\]
+so we can set $\lambda_i$ infinitely large, and
+\[
+    \max_{\lambda\in\mathbb R_+^m} L(v,\lambda) =+\infty
+\]
+
+So what do we get? We have a function $\max_{\lambda\in\mathbb R_+^m} L(v,\lambda)$ which equals to $J(v)$ in its feasible region and is infinitly large otherwise. Then the solution of this new unconstrained problem is obviously the same as the previous constrained problem. We only have to solve this problem
+\begin{align}
+    \min_v \max_{\lambda\in\mathbb R_+^m} L(v,\lambda) \label{minmax}
+\end{align}
+without any other constraints! Amazing!
+
+\section{Dual problem}
+
+According to the definition in the previous section, we know that a minimization problem with inequality convex constraints can be concisely expressed by generalized Lagrangian $L(v,\lambda)$, then we can define the dual function and dual problem.
+
+\begin{definition}
+    Given the primal problem $P$
+    \begin{align*}
+        &\min J(v)\\
+        &s.t.\ \varphi_i(v)\leq 0, \ i=1,\cdots,m,
+    \end{align*}
+    where $J:\Omega\to\mathbb R$ and the constraints $\varphi_i:\Omega\to\mathbb R$ are some functions defined on some open subset $\Omega$ of some finite-dimensional Euclidean vector space V, the function $G:\mathbb R_+^m\to\mathbb R$ given by
+    \[
+        G(\mu)=\inf_{v\in\Omega}L(v,\mu)\ \mu\in\mathbb R_+^m,
+    \]
+    is called the dual function. The problem $D$
+    
+    \begin{align*}
+        &\max G(\mu)\\
+        &s.t.\ \mu\in\mathbb R_+^m
+    \end{align*}
+    is called the dual problem. The variable $\mu$ is called the dual variable. The variable $\mu\in\mathbb R_+^m$ is said to be dual feasible if $G(\mu)$ is defined. If $\lambda\in\mathbb R_+^m$ is a maximum of G, then we call it a dual optimal.
+\end{definition}
+
+The dual function $G$ in the above definition provides a lower bound on the value of the objective function $J$, that is
+
+\[
+    G(\mu)\leq L(u,\mu)\leq J(u)\ \forall u\in U, \forall \mu\in\mathbb R_+^m
+\]
+
+Since $\mu\geq 0$ and $\varphi_i(u)\leq 0$ for $i=1,\cdots,m$, we have
+\[
+    G(\mu)=\inf_{v\in\Omega}L(v,\mu)\leq L(u,\mu)=J(u)+\sum_{i=1}^m\mu_i\varphi_i(u)\leq J(u)
+\]
+Denote the minimum value of the primal problem $P$ by $p^*$ and denote the maximum value of the dual problem $D$ by $d^*$, then we have the \emph{weak duality}
+\[
+    d^*\leq p^*
+\]
+If the optimal solution of primal problem $P$ and dual problem $D$ is $u^*$ and $\lambda^*$ respectively, we have another equivalent weak duality
+\[
+    G(\lambda^*)\leq J(u^*)
+\]
+
+And we can define strong duality.
+
+\begin{definition}
+    The difference $p^*-d^* \geq 0$ is called the \emph{optimal duality gap}. If the duality gap is zero, that is, $p^*=d^*$, then we say that \emph{strong duality} holds.
+\end{definition}
+
+Even if the primal problem is not convex, the dual problem is convex always. So the weak duality can always be used to find a lower bound for the primal problem even if the strong duality does not hold.
+
+The following theorem indicates that we can solve the primal problem by the dual problem in some conditions when the strong duality holds.
+
+\begin{theorem}
+    Consider the minimization problem $P$
+    \begin{align*}
+        &\min \ J(v)\\
+        &s.t.\ \varphi_i(v)\leq 0, \ i=1,\cdots,m
+    \end{align*}
+    where the function J and $\varphi_i$ are defined on some open subset $\Omega$ of a finite-dimensional Euclidean vector space V (or a real Hilbert space V)
+    \begin{enumerate}[label={(\arabic*)}]
+        \item Suppose the functions $\varphi_i:\Omega\to \mathbb R$ are continuous, and that for every $\mu\in\mathbb R_+^m$, the problem $P$
+            \begin{align*}
+                &\min\ L(v,\mu)\\
+                &s.t.\ v\in\Omega,
+            \end{align*}
+            has a unique solution $u_\mu$, so that
+            \[
+                L(u_\mu,\mu)=\inf_{v\in\Omega}L(v,\mu)=G(\mu),
+            \]
+            and the function $\mu\mapsto u_\mu$ is continuous on $\mathbb R_+^m$. Then the function G is differentiable for all $\mu\in\mathbb R_+^m$
+            \[
+                G^\prime_\mu(\xi)=\sum_{i=1}^m\xi_i\varphi_i(u_\mu) \ \forall \xi\in\mathbb R^m
+            \]
+            If $\lambda$ is any solution of problem $D$:
+            \begin{align*}
+                &\max\ G(\mu)\\
+                &s.t.\ \mu\in\mathbb R_+^m
+            \end{align*}
+            then the solution $u_\lambda$ of the corresponding problem $P_\lambda$ is a solution of problem $P$.
+        \item Assume problem $P$ has some solution $u\in U$, and that $\Omega$ is convex, the functions $\varphi_i$ ($1\leq i\leq m$) and J are convex and differentiable at u, and that the constraints are qualified. Then problem $D$ has a solution $\lambda\in\mathbb R_+^m$, and $J(u)=G(\lambda)$, that is, the duality gap is zero.
+    \end{enumerate}
+\end{theorem}
+
+The proof is long but the idea of the theorem is not surprising, we have seen similar theorems in linear programs.
+
+\chapter{Support Vector Machine}
+\section{Hard margin Support Vector Machine}
+
+A Support Vector Machine is a classifier $g(x)= w^\top x + b $ that maximizes the margin between the separating hyperplane and supporting vectors\cite{cortes1995support}, which is an optimization problem 
+\begin{align*}
+    &\min& & \frac{1}{2}||w||^2 \label{svmhard}\tag{$\mathrm{SVM_{hard}}$}\\
+    &s.t.& & \ y_i(w^\top x_i+b)\geq 1, \ i=1,\cdots,m
+\end{align*}
+where $x_i\in \mathbb R^d$ is a $d$-dimensional data point in a linear separable dataset which has $m$ data points, $y_i$ is the label of point $x_i$. $w\in \mathbb R^n$ and $b$ are the coefficient of the constraint affine function, in other words, the separating hyperplane or support vector machine. 
+
+Obviously, this is the inequality constraint optimization problem we discussed in the previous chapter, so we write the Lagrangian
+\[
+    L(w,b,a)=\frac{||w||^2}{2}+\sum_{i=1}^m a_i(1-y_i(w^\top x_i+b))
+\]
+where $w=(w_1,\cdots,w_d)^\top$, $a=(a_1,\cdots,a_m)^\top\in\mathbb R_+^m$.
+
+Then we have the primal problem $P$ and dual problem $D$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
+
+\begin{align}
+    &\min_{w,b} \max_{a\in\mathbb R_+^m} L(w,b,a) \tag{P}\\
+    &\max_{a\in\mathbb R_+^m} \min_{w,b} L(w,b,a) \tag{D}
+\end{align}
+
+For the problem $D$, we write explicitly the inner function
+\begin{align}
+    \min_{w,b} L(w,b,a)=\min_{w,b}[\frac{1}{2}||w||^2+\sum_{i=1}^m a_i(1-y_i(w^\top x_i+b))]
+\end{align}
+Use KKT condition\ref{kkt1}, we have
+\begin{align}
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m a_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m a_i y_i
+\end{align}
+
+Substitute formula (3.2) and (3.3) back to (3.1), we have
+\begin{align}
+    \min_{w,b} L(w,b,a) = \frac{1}{2}\left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right) + \sum_{i=1}^m a_i - \sum_{i=1}^m\sum_{j=1}^m a_i k_j y_i y_j x_i^\top x_j
+\end{align}
+
+Expand the first term, we have 
+
+\begin{align}
+    \left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
+\end{align}
+Substitute (3.5) back to (3.4), we have
+
+\begin{align}
+    \min_{w,b} L(w,b,a) = \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
+\end{align}
+
+Then we substitute function (3.6) back to problem $D$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P$
+
+\begin{align*}
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j \\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & a_j\geq 0,\ i=1,\cdots,m
+\end{align*}
+
+Assume the optimal solution is $a^*=(a_1,\cdots,a_m)$, then by (3.2) we will have optimal slope and intercept, $w$ and $b$
+
+\begin{align}
+    w^*&=\sum_{i=1}^m a_i^* y_ix_i \\
+    b^*&=-\frac{\max_{i,y_i=-1}w^{*\top}x_i + \min_{i,y_i=1} w^{*\top} x_i}{2}
+\end{align}
+
+
+\section{Soft margin Support Vector Machine}
+
+The hard margin support vector machine has a very strict requirement on the dataset, which means the dataset has to be linear separable. Otherwise, the intersection of all the inequality constraints will be an empty set.
+
+To better solve problems in non linear separable datasets, we have to introduce Soft Margin Support Vector Machine which allow the separating hyperplane to make mistakes sometimes.
+
+Introduce slack variables $s=(s_1,\cdots,s_m)^\top\in\mathbb R_+^m$, so the optimization problem is
+\begin{align*}
+    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \label{svmsoft}\tag{$\mathrm{SVM_{soft}}$} \\
+    &s.t. & & s_i  \geq 1 - y_i(w^\top x_i +b)\\
+    &     & & s_i \geq 0, \ i=1,\cdots,m
+\end{align*}
+
+Similar to what we did in the previous section, we have a generalized Lagrangian
+\begin{align}
+    L(w,b,a,s,u) = \frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m a_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i
+\end{align}
+
+Then we have the primal problem $P'$ and dual problem $D'$ sharing the same solution according to the results obtained in Section 2.2(problem \ref{minmax}) and Theorem 2.3.1
+
+\begin{align}
+    &\min_{w,b,s} \ \max_{a\in\mathbb R_+^m,u\in\mathbb R_+^m} L(w,b,a,s,u) \tag{P'}\\
+    &\max_{a\in\mathbb R_+^m,u\in\mathbb R_+^m} \ \min_{w,b,s} L(w,b,a,s,u) \tag{D'}
+\end{align}
+
+For the problem $D'$, we write explicitly the inner function
+\begin{align}
+    \min_{w,b,s} L(w,b,a,s,u)=\min_{w,b,s}[\frac{||w||^2}{2}+C\sum_{i=1}^m s_i + \sum_{i=1}^m a_i(1-s_i-y_i(w^\top x_i + b)) - \sum_{i=1}^m u_i s_i]
+\end{align}
+Use KKT condition\ref{kkt1}, we have
+\begin{align}
+    &\frac{\partial L}{\partial w}=0\Rightarrow w=\sum_{i=1}^m a_i y_i x_i\\
+    &\frac{\partial L}{\partial b}=0\Rightarrow 0=\sum_{i=1}^m a_i y_i \\
+    &\frac{\partial L}{\partial s}=0\Rightarrow 0=C-a_i-u_i
+\end{align}
+
+Substitute formula (3.9), (3.10) and (3.11) back to (3.8), we have 
+\begin{align}
+    \min_{w,b,s} L(w,b,a,s,u) = \frac{1}{2}\left( \sum_{i=1}^m a_i y_i x_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right) + \sum_{i=1}^m a_i - \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
+\end{align}
+
+Expand the first term, we have 
+
+\begin{align}
+    \left( \sum_{i=1}^m a_i y_i a_i \right)^\top \left( \sum_{i=1}^m a_i y_i x_i\right)= \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
+\end{align}
+Substitute (3.13) back to (3.12), we have
+
+\begin{align}
+    \min_{w,b,s} L(w,b,a,s,u) = \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j
+\end{align}
+
+Since we have $u_i\geq 0$, by (3.11) we have $C-a_i\geq 0$.
+
+Then we substitute function (3.14) back to problem $D'$, we have the equivalent dual problem sharing the same optimal solution with the prime problem $P'$
+
+\begin{align*}
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j x_i^\top x_j \label{softsvmd}\tag{$\mathrm{SVM_{soft} dual}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m \tag{(Box Constraint)}
+\end{align*}
+
+\section{Hinge Loss}
+
+A function called hinge loss function is frequently used in the optimization algorithms of SVM. Using hinge loss function, the optimization problem of minimizing soft margin between separating hyperplane can be rewritten into a much more concise form. And with the help of hinge loss, we don't have to build a new optimization algorithm based on the dual problem, we can just rewrite the optimization problem in the language of hinge loss and use a common QP or SOCP solver to solve it.
+
+The formula of hinge loss function is
+\begin{align}
+    l(y,\hat y)=\max(0,1-y\hat y)
+\end{align}
+Notice that we have
+\begin{align}
+    &l(w^\top x_i+b,\hat y_i) \geq 0 \\
+    &l(w^\top x_i+b,\hat y_i) =\max(0,1-y_i(w^\top x_i+b))\geq 1-y_i(w^\top x_i+b)
+\end{align}
+
+which is exactly the constraints of slack variable $s_i$ in soft margin SVM (\ref{svmsoft})!
+
+So we can rewrite the soft margin SVM optimization problem as an unconstrained optimization problem.
+
+\begin{align*}
+    &\min & C \sum_{i=1}^m l(w^\top x_i+b, y_i) + \frac{1}{2}||w||^2 
+\end{align*}
+
+With the help of gradient descent algorithm or other optimization algorithms, we can find a local minimum solution easily.
+
+When we have a dataset with $n$ classes ($n>2$), one SVM classifier is not enough, we need $C_n^2$ classifiers. And to perform prediction, we have to calculate all the related classification result of relavant SVM classifiers and choose the class with the largest number of SVM classifiers which indicate that the sample belongs to this class. This is what I did in \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}..
+
+\section{Kernel method}
+
+The common linear hard margin SVM or soft margin SVM can only give a linear separating hyperplane, which means that when dealing with datasets with non-linearity, linear SVM will suffer from bad performance.
+
+There are two different approaches to solve this problem, the first one is by preprocessing the dataset and increase the dimensionality of it with the help of a non-linear function $\varphi:\mathbb R^d\to\mathbb R^{d^\prime}$. Another one is SVM with kernel.
+
+The approach to increase dimensionality to the dataset was explored in \cite{cortes1995support}. When the dimensionality of feature space is more than 33000, the raw error becomes much lower and the raw error never increase with higher dimensionality. Although this approach is intuitive and easy to implement, the dataset with a very high dimensionality sometimes will take up too much memory which will cause trouble when training a SVM on it. I did an experiment on it and
+found that this simple approach will dramatically increase the prediction accuracy but also increase the overhead of GPU memory, the function increase\_dims in \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code} is actually the function $\varphi$.
+
+Another approach called SVM with kernel, however, is much more commonly used.
+
+The fact that SVM with kernel can be used and will not cause serious problems is supported by several theorems in the following.
+
+\begin{theorem}
+    (Cover's Theorem\cite{cover1965geometrical}) The probability to linearly separate N points in a d-dimensional space is
+    \[
+        p(d,N)=\frac{2\sum_{i=0}^mC_{N-1}^i}{2^N}=\left\{ 
+        \begin{aligned}
+            &\frac{\sum_{i=1}^dC^i_{N-1}}{2^{N-1}},\ \ &N>d+1 \\ &1,\ \ &N\le d+1
+        \end{aligned} \right.
+    \]
+    where $m=\min(d,N-1)$.
+\end{theorem}
+
+\begin{theorem}
+    (Mercer's Theorem\cite{mercer1909functions}) If $K(x_i,x_j)$ is a symmetric function ($K(x_i,x_j)=K(x_j,x_i)$), then it is a inner product in a Hilbert space if for any square integrable function $g$, we have
+    \[
+        \int K(x_i,x_j)g(x_i)g(x_j)dx_idx_j \geq 0.
+    \]
+\end{theorem}
+
+\begin{theorem}
+    (Riesz representation theorem\cite{riesz1907espèce}) If $\mathcal H$ is a Reproducing Kernel Hilbert Space by kernel function $k(x_i,x_j)$, $||\cdot||_{\mathcal H}$ is a norm in $\mathcal H$, then for any function $C$ that increase monotonically and any non-negative loss function $L$, the solution of optimization problem
+    \[
+        \min_{h\in\mathcal H} L(h(x_1),\cdots,h(x_n))+C(||h||_{\mathcal H})
+    \]
+    can be represented by a linear combination of kernel function $K$ as
+    \[
+        h^*(x)=\sum_{i=1}^n a_i K(x,x_i)
+    \]
+\end{theorem}
+
+
+The main idea of SVM with kernel is to use a kernel function to map the original features to a higher dimensional feature space. With Cover Theorem, we know that the higher the dimension, the easier to linearly separate data points. Notice that the proof of Theorem 2.2.1 also holds for real Hilbert space, so all the deductions in Section 3.1 and Section 3.2 also hold for real Hilbert space. Then we can replace $x_i^\top x_j$ with $\langle x_i,x_j \rangle$ (where the inner product $\langle -,-
+    \rangle$ is defined with a kernel function $K(x_1,x_2)=\langle x_1,x_2\rangle=\varphi(x_1)^\top \varphi(x_2)$ in a Hilbert space called Reproducing Kernel Hilbert Space), and the result 
+\begin{align*}
+    &\max_a & & \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle \label{softsvmk}\tag{$\mathrm{SVM_{soft} kernel}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m 
+\end{align*}
+
+also holds. 
+
+The kernel function have to be symmetrical and positive definite to satisfy Definition 2.1.1 and Mercer's theorem.
+
+Actually, kernel method not only can be applied to SVM, but also many other optimization problems with a monotonically increasing regularization term according to Riesz representation theorem.
+\section{SMO algorithm}
+
+A very simple and efficient algorithm to find the solution to a SVM problem was found in 1998 by John Platt called SMO algorithm\cite{platt1998sequential}, we will look at it in this section.
+
+Recall we have the dual problem with kernel\ref{softsvmk}, we write the equivalent minimization problem
+
+\begin{align*}
+    &\min_a & & \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle - \sum_{i=1}^m a_i  \label{softsvmm}\tag{$\mathrm{SVM_{soft} kernel}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m 
+\end{align*}
+
+Let $K_{ij}=\langle x_i,x_y\rangle, v_i=\sum_{j=3}^m y_j a_j K_{ij}$.
+
+The SMO algorithm choose two bases at a time, say $a_1$ and $a_2$, to optimize upon and fix the other bases. So we have $a_1 y_1 + a_2 y_2=k$, where $k$ is a constant. 
+
+Notice that $y_1^2=y_2^2=1$, so 
+
+\begin{align}
+    a_1&=ky_1-a_2y_1y_2\\
+    a_1^2&=k^2-2ka_2y_2 + a_2^2
+\end{align}
+
+Expand the summations and substitute, we have
+
+\begin{align}
+    &\min_a \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m y_iy_ja_ia_j\langle x_i,x_j\rangle - \sum_{i=1}^m a_i \\
+    =&\min_a \frac{1}{2}\sum_{i=3}^m\sum_{j=3}^m y_i y_j a_i a_j K_{ij} - \sum_{i=3}^m a_i \\
+     &+\frac{1}{2}(y_1^2 a_1^2 K_{11}+y_2^2 a_2^2 K_{22} + 2y_1y_2 a_1a_2 K_{12} 
+     +2y_1a_1v_1 + 2y_2a_2v_2) - (a_1+a_2) \\
+    =&\min_{a_1,a_2} \frac{1}{2}(y_1^2 a_1^2 K_{11}+y_2^2 a_2^2 K_{22} + 2y_1y_2 a_1a_2 K_{12} 
+     +2y_1a_1v_1 + 2y_2a_2v_2) - (a_1+a_2) 
+\end{align}
+
+By (3.20), (3.21) and (3.25), we have 
+
+\begin{align}
+    &\min_a \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m y_iy_ja_ia_j\langle x_i,x_j\rangle - \sum_{i=1}^m a_i \\
+    =&min_{a_2}\frac{1}{2} [(k^2-2ka_2y_2+a_2^2)K_{11}+a_2^2K_{22}+2(ky_2-a_2)a_2K_{12}+2(k-a_2y_2)v_1+2y_2a_2v_2] \\
+    &-(a_1+a_2) \\
+    =&\min_{a_2}\frac{1}{2}(K_{11}+K_{22}-2K_{12})a_2^2+(y_1y_2-1-ky_2K_{11}+ky_2K_{12}-y_2v_1+y_2v_2)a_2 \\
+    & +\frac{1}{2}k^2K_{11}+kv_1-ky_1
+\end{align}
+
+Let $\frac{\partial W}{\partial a_2}=0$, we have
+
+\begin{align}
+    (K_{11}+K_{22}-2K_{12})a_2+y_1y_2-1-ky_2K_{11}+ky_2K_{12}-y_2(v_1-v_2)=0
+\end{align}
+
+where $a_2$ is the new value we want.
+
+Let $\kappa=K_{11}+K_{22}-2K_{12}$, $g(x_i)=\sum_{j=1}^my_ja_jK_{ij} + b$, so we have
+
+\begin{align}
+    v_1 &=\sum_{j=3}^my_ja_jK_{1j} \\
+    &=g(x_1)+y_2a_2(K_{11}-K_{12})-kK_{11} \\
+    v_2 &=\sum_{j=3}^my_ja_jK_{2j} \\
+    &=g(x_2)+y_2a_2(K_{21}-K_{22})-kK_{21} 
+\end{align}
+
+So we have
+
+\begin{align}
+    v_1-v_2&=g(x_1)-g(x_2)+y_2(K_{11}+K_{22}-2K_{12})a_2-kK_{11}+kK_{12} \\
+    &=g(x_1)-g(x_2)+y_2\kappa a_2-kK_{11}+kK_{12} 
+\end{align}
+
+where the $a_2$ is the old value.
+
+Substitute (3.37) into (3.31), we have
+
+\begin{align}
+    y_2\kappa a_2^{\mathrm{new}}=(g(x_1)-y_1)-(g(x_2)-y_2)+y_2\kappa a_2^{\mathrm{old}}
+\end{align}
+
+Notice that $E_i=g(x_i)-y_i$ is the error between prediction of SVM and ground truth, so we have a simpler representation
+
+\begin{align}
+    a_2^{\mathrm{new}} &= a_2^{\mathrm{old}}+\frac{y_2(E_1-E_2)}{\kappa} \\
+    \kappa &=(x_1-x_2)^2
+\end{align}
+
+And by $a_1y_1+a_2y_2=k$, we have the new value of $a_1$
+
+\begin{align}
+    a_1^{\mathrm{new}}=a_1^{\mathrm{old}}+ y_1y_2(a_2^{\mathrm{old}}- a_2^{\mathrm{new}})
+\end{align}
+
+
+%And we have the new value of $b$
+%
+%\begin{align}
+%    b^{\mathrm{new}}=-E_2-y_1 K_{12}(a_1^{\mathrm{new}}-a_1^{\mathrm{old}})-y_2 K_{22}(a_2^{\mathrm{new}}-a_2^{\mathrm{old}})+b^{\mathrm{old}}
+%\end{align}
+
+However, when we use this formula to get a new $a_2$, it is possible that the new $a_2$ doesn't follow the box constraint $0\leq a_2\leq C$, so we have to clip the value.
+
+If $y_1\neq y_2$, let 
+\begin{align*}
+    H&=\min(C,C+a_2^{\mathrm{old}}-a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}-a_1^{\mathrm{old}});
+\end{align*}
+
+if $y_1=y_2$,  let 
+\begin{align*}
+    H&=\min(C,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}-C),
+\end{align*}
+
+then
+
+\[
+    a_2^{\mathrm{new clip}} = 
+    \begin{cases}
+        H, \quad a_2^{\mathrm{new}}>H \\
+        a_2^{\mathrm{new}}, \quad L\leq a_2^{\mathrm{new}} \leq H \\
+        L, \quad a_2^{\mathrm{new}} <L
+    \end{cases}
+\]
+
+And we can obtain corresponding $w$ easily by (3.7). New value of $b$ is given by this formula.
+
+\begin{align*}
+    b_1^{\mathrm{new}} &= b^{\mathrm{old}} - E_1 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{11} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{12} \\
+    b_2^{\mathrm{new}} &= b^{\mathrm{old}} - E_2 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{12} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{22} \\
+    b^{\mathrm{new}}&= 
+    \begin{cases}
+        b_1^{\mathrm{new}}, \quad &0<a_1^{\mathrm{new}}<C \\
+        b_2^{\mathrm{new}}, \quad &0<a_2^{\mathrm{new}}<C \\
+        \frac{b_1^{\mathrm{new}}+b_1^{\mathrm{new}}}{2}, \quad &a_1^{\mathrm{new}},a_1^{\mathrm{new}}\in \{0,C\} 
+    \end{cases}
+\end{align*}
+
+Another thing important when implementing this algorithm is that the Lagrange multipliers $a$ must be initialized by 0, so by $b$. This is because this algorithm will keep $\sum_{i=1}^n a_i y_i = 0$, if not initialized to 0, this KKT condition will not hold.
+
+I implemented this algorithm by myself. The code of SMO alogorithm is here \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code} in the file svm\_torch.py.
+
+
+\section{Support Vector Regression}
+
+The main idea of support vector regression\cite{drucker1997support} is to minimize the distance between the regressing hyperplane and support vectors. In contrary to SVM, the margin in SVR is now "outside". That is, when a vector is distant enough from regressing hyperplane, it will be support vector, then minimizing the outer margin is equivalent to maximizing the distance between support vectors and the regressing hyperplane.
+
+Intuitively, we can write the optimization problem for SVR
+
+\begin{align*}
+    &\min_{w,b,\xi, \xi^*} && \frac{1}{2}||w||^2 +C\sum_{i=1}^m (\xi_i+\xi_i^*) \\
+    &s.t. && (\langle w,x_i\rangle +b)-y_i\leq \epsilon +\xi_i \\
+    & && y_i-(\langle w,x_i\rangle +b)\leq \epsilon +\xi_i^* \\
+    & && \xi_i,\xi_i^*\geq 0,\ i=1,\cdots,m
+\end{align*}
+
+%\begin{align*}
+    %    &\min_{w,b,\eta} && \frac{1}{2} ||w||^2 + \frac{C}{2}\sum_{i=1}^m\eta_i^2 \\
+    %&s.t. &&y_i-(\langle w,x_i\rangle + b)=\eta_i,\ i=1,\cdots,m
+%\end{align*}
+where $\xi=(\xi_1,\cdots,\xi_m)^\top,\xi^*=(\xi_1^*,\cdots,\xi_m^*)^\top$ are the slack variables, and $C$ is the penalty coefficient.
+
+And with almost the same deduction in Section 3.1 and Section 3.2, we will have the dual problem
+
+\begin{align*}
+    &\max_{a,a^*,\eta,\eta^*} && -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m(a_i^*-a_i)(a_j^*-a_j)\langle x_i,x_j\rangle -\epsilon \sum_{i=1}^m (a_i^*+a_i) + \sum_{i=1}^my_i(a_i^*-a_i) \\
+    &s.t. &&\sum_{i=1}^m(a_i^*-a_i)=0 \\
+    & &&C-a_i-\eta_i=0 \\
+    & &&C-a_i^*-\eta_i^*=0 \\
+    & && a_i,a_i^*,\eta_i,\eta_i^*\geq 0,\ i=1,\cdots,m
+\end{align*}
+
+%\begin{align*}
+    %    &\max_a && -\frac{1}{2}\sum_{i=1}^m \sum_{j=1}^m a_i a_j (\langle x_i,x_j \rangle+\frac{\delta_{ij}}{C}) +\sum_{i=1}^m a_i y_i \\
+    %&s.t. && \sum_{i=1}^m a_i=0
+%\end{align*}
+
+Notice the form is similar to \ref{softsvmm}, so we can apply SMO algorithm on it to find the optimal solution. The deduction is almost the same, so we leave it out.
+
+\section{Support Vector Clustering}
+
+The main idea of Support Vector Clustering method\cite{ben2001support} almost the same as SVR. The difference is that instead of training a hyperplane, SVC will train a sphere. The primal Lagrangian is
+
+\[
+    L=R^2-\sum_j (R^2+\xi_j-||\varphi(x_j)-a||^2)\beta_j-\sum_j\xi_j\mu_j+C\sum_j\xi_j
+\]
+
+where $\xi=(\xi_1,\cdots,\xi_m)^\top$ are slack variables, $R$ is the radius of the sphere and $a$ is the center of the sphere.
+
+Use KKT conditions in Theorem 2.2.1, we have the dual Lagrangian
+
+\[
+    W=\sum_jK(x_j,x_j)\beta_j-\sum_i\sum_j\beta_i\beta_jK(x_i,x_j)
+\]
+
+Define the distance of point $x$'s image $\varphi(x)$ in feature space from the center of the sphere $a$ as
+\[
+    R^2(x)=||\varphi(x)-a||^2
+\]
+
+Then we have
+
+\[
+    R=\{R(x_i)|\ x_i \text{is a support vector} \}
+\]
+
+\chapter{Generalization ability of SVM}
+
+The most impressive property of SVM is the generalization ability. Give a rather limited dataset, SVM can give us a pretty descent classifier with a very low prediction error. In this chapter we will look at the theoretical root of this ability.
+
+\section{Vapnik-Chervonenkis dimension}
+
+The VC dimension is a metric of the ability to over-fit any dataset, it measures the complexity of a set of real functions. The definition is given below.
+
+\begin{definition}
+    (The VC dimension of a set of indicator functions\cite{vapnik2013nature}) The VC dimension of a set of indicator functions $Q(z,\alpha)$, $\alpha\in\Lambda$, is the maximum number $h$ of vectors $z_1,\cdots,z_h$ that can be separated into two classes in all $2^h$ possible ways using functions of the set (i.e., the maximum number of vectors that can be shattered by the set of functions). If for any n there exists a set of n vectors that can be shattered by the set
+    $Q(z,\alpha)$, $\alpha\in\Lambda$, then the VC dimension is equal to infinity.
+\end{definition}
+
+\begin{definition}
+    (The VC dimension of a set of real functions\cite{vapnik2013nature}) Let $A\leq Q(z,\alpha)\leq B,\ \alpha\in \Lambda$ be a set of real functions bounded by constants $A$ and $B$ ($A$ can be $-\infty$ and $B$ can be $\infty$).
+    Let us consider along with the set of real functions $Q(z,\alpha$, $\alpha\in \Lambda$, the set of indicators
+    \[
+        I(z,\alpha,\beta)=\theta\{Q(z,\alpha)-\beta\},\ \alpha\in\Lambda, \ \beta\in(A,B)
+    \]
+    where $\theta(z)$ is the step function
+    \[
+        \theta(z)=
+        \begin{cases}
+            0,\ z<0 \\
+            1,\ z\geq 0\\
+        \end{cases}
+    \]
+    The VC dimension of a set of real functions $Q(z,\alpha)$, $\alpha\in \Lambda$, is defined to be the VC dimension of the set of corresponding indicators with parameters $\alpha\in\Lambda$ and $\beta\in(A,B)$.
+\end{definition}
+
+By the definition of a set of real functions, the VC dimension of linear function $g(x)=w^\top x+b$, $w,x\in\mathbb R^d$ for a general dataset is $d+1$. But if we have constraints on the classification margin, its VC dimension can be smaller, which is just the idea of SVM.
+
+\begin{theorem}
+    If for all the n data points $x_i=(x_1,\cdots,x_d)^\top$, $i=1,\cdots,n$, we have $||x_i-a||<R$, where $a$ is the center of a hypersphere, $R$ is its radius, then for a set of hyperplanes whose margins are greater than $\gamma$, its VC dimension $h$ has a upper bound
+    \[
+        h\leq \min(\frac{R^2}{\gamma^2},d)+1
+    \]
+\end{theorem}
+
+By the above theorem, we know that SVM will find just the hyperplane with the minimal VC dimension.
+
+\section{Structural risk minimization}
+
+Structural risk minimization says that if we have different function sets to separate a dataset into classes, then the function set with the minimal structural risk is the function set with the minimal VC dimension, which is the following statement.
+
+\begin{theorem}
+    (Structural risk minimization) The function set with the minimal structural risk is the function set with the minimal VC dimension.
+\end{theorem}
+
+\section{Generalization ability of SVM}
+
+By the statistical learning theory of Vapnik, we can get a very useful theorem which indicates the generalization ability of SVM by the number of support vectors.
+
+\begin{theorem}
+    (Generalization ability of SVM\cite{cortes1995support}) The expectation of the misclassification probability of SVM $E[P_{error}]$ is bounded by the fraction of the number of support vectors $m_{supprt}$ and the number of training vectors $m$, that is
+    \[
+        E[P_{error}]\leq\frac{E[m_{support}]}{m}
+    \]
+\end{theorem}
+
+So we will know how good the SVM we have trained is even without prediction! Amazing!
+
+\chapter{Conclusion}
+
+In this report, I referred to the Lagrange method and non-linear optimization theory. Then I deduced the primal and dual problem of hard margin SVM and soft margin SVM, discussed how to use hinge loss to simplify SVM optimization. Then I talked about the SMO algorithm which is used to find an optimal solution of SVM. And I shortly referred to SVR and SVC which are regression and clustering version of SVM. In the end, I referred to the most powerful theorems in the Statistical
+Learning theory by Vapnik, and discussed how can they be used to help us understand and use SVM. 
+
+Based upon the ideas in the previous chapters, I implemented a multi-class SVM classifier with a utility function to help mapping non-linearly the original dataset to a higher dimensional feature space. This classifier has 92\% accuracy on the MNIST training set with the help of PCA algorithm and the increasing-dimensionality function. The code is uploaded to Github: \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code}.
+
+\bibliography{mybib}{}
+\bibliographystyle{plain}
+\end{document}

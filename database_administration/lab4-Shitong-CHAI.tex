@@ -1,0 +1,558 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+
+\newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\title{Database Management Experiment Report \#4}
+\author{Shitong CHAI}
+\date{\vspace{-5ex}}
+\begin{document}
+\maketitle
+
+
+% files containing the table emp of scott : OFFICIAL ANSWER
+% select b.file_name from dba_extents a, dba_data_files b where a.file_id=b.file_id and segment_name='EMP' and owner='SCOTT';
+
+%%%%%%%%%%%%%Section1
+\section{Managing Users}
+\begin{enumerate}
+
+%%%%%%%%%%%%1
+\item{Create user Bob with the password along and the defaut tablespace USERS with the quota 1M. Make sure that Bob can log in and he can create tables.}
+\begin{sqlshell}
+alter session set "_ORACLE_SCRIPT"=true;
+create user bob identified by along default tablespace users quota 1M on users;
+grant create session, create table to bob;
+conn bob/along;
+\end{sqlshell}
+
+\begin{messageshell}
+Session altered.
+User created.
+Grant succeeded.
+Connected.
+
+\end{messageshell}
+
+%%%%%%%%%%%%2
+\item{ }
+ \begin{enumerate}
+ \item{Create user Kay with password mary. }
+\begin{sqlshell}
+conn / as sysdba;
+alter session set "_ORACLE_SCRIPT"=true;
+create user kay identified by mary default tablespace users quota 1M on users;
+grant create session, create table to kay;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Session altered.
+User created.
+Grant succeeded.
+
+\end{messageshell}
+
+ \item{Copy the table EMP of SCOTT in the schema of Kay.}
+\begin{sqlshell}
+conn / as sysdba;
+CREATE TABLE kay.emp AS (SELECT * FROM scott.emp);
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Table created.
+\end{messageshell}
+ \end{enumerate}
+
+\item{Display the information on Bob and Kay.}
+\begin{sqlshell}
+select * from all_users where username='BOB' or username='KAY';
+\end{sqlshell}
+\begin{messageshell}
+USERNAME
+--------------------------------------------------------------------------------
+   USER_ID CREATED   COM O INH
+---------- --------- --- - ---
+DEFAULT_COLLATION
+--------------------------------------------------------------------------------
+IMP ALL
+--- ---
+BOB
+       104 18-NOV-19 YES Y NO
+USING_NLS_COMP
+NO  NO
+
+
+USERNAME
+--------------------------------------------------------------------------------
+   USER_ID CREATED   COM O INH
+---------- --------- --- - ---
+DEFAULT_COLLATION
+--------------------------------------------------------------------------------
+IMP ALL
+--- ---
+KAY
+       105 18-NOV-19 YES Y NO
+USING_NLS_COMP
+NO  NO
+\end{messageshell}
+\item{Display the amount of free space in the tablespaces of Bob.}
+\begin{sqlshell}
+select b.tablespace_name, round(sum(b.bytes)/1024/1024 ,2) FreeMB from dba_users a, dba_free_space b where a.default_tablespace=b.tablespace_name and a.username='BOB' group by b.tablespace_name;
+\end{sqlshell}
+\begin{messageshell}
+TABLESPACE_NAME                    FREEMB
+------------------------------ ----------
+USERS                                4.19
+\end{messageshell}
+
+\item{As administrator, delete the quota for Bob on his default tablespace.}
+\begin{sqlshell}
+alter user bob quota 0M on users;
+\end{sqlshell}
+\begin{messageshell}
+User altered.
+\end{messageshell}
+
+\item{Delete the user Kay.}
+\begin{sqlshell}
+alter session set "_oracle_script"=true;
+drop user kay cascade;
+\end{sqlshell}
+\begin{messageshell}
+Session altered.
+User dropped.
+\end{messageshell}
+\item{Allocate Bob the password OLINK and ensure that Oracle asks him to change his password at next login.}
+\begin{sqlshell}
+conn / as sysdba;
+alter user bob identified by OLINK;
+alter user bob password expire;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+User altered.
+User altered.
+\end{messageshell}
+\begin{sqlshell}
+conn bob/OLINK;
+\end{sqlshell}
+\begin{messageshell}
+ERROR:
+ORA-28001: the password has expired
+
+
+Changing password for bob
+New password:
+\end{messageshell}
+\end{enumerate}
+
+\section{Profile Management}
+\begin{enumerate}
+\item{Create a new profile so that 2 concurrent sessions are permitted per user. From the data dictionary, view the result.}
+\begin{sqlshell}
+alter session set "_ORACLE_SCRIPT"=true;  
+create profile pf limit sessions_per_user 2;
+\end{sqlshell}
+\begin{messageshell}
+Session altered.
+Profile created.
+\end{messageshell}
+Verification of result:
+\begin{sqlshell}
+select profile, limit from dba_profiles where profile='PF' and resource_name='SESSIONS_PER_USER';
+\end{sqlshell}
+\begin{messageshell}
+PROFILE
+--------------------------------------------------------------------------------
+LIMIT
+--------------------------------------------------------------------------------
+PF
+2
+
+\end{messageshell}
+\item{Allow this profile to Bob. Try to connect more than 2 sessions with account of Bob.}
+\begin{sqlshell}
+alter user bob profile pf;
+\end{sqlshell}
+\begin{messageshell}
+User altered.
+\end{messageshell}
+Tring to connect with 2 sessions:
+Session 1:
+\begin{sqlshell}
+conn bob/OLINK;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+\end{messageshell}
+Session 2:
+\begin{sqlshell}
+conn bob/OLINK;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+\end{messageshell}
+Both sessions successfully connected to bob.
+\end{enumerate}
+
+\section{Privilege Management}
+\begin{enumerate}
+\item{As an administrator, create user Kay and permit her to connect to the database and create tables in her schema.}
+\begin{sqlshell}
+alter session set "_ORACLE_SCRIPT" = true ;
+create user kay identified by mary default tablespace users quota 1M on users;
+grant create session, create table to kay;
+\end{sqlshell}
+\begin{messageshell}
+Session altered. 
+User created.
+Grant succeeded.
+\end{messageshell}
+
+\item{ }
+ \begin{enumerate}
+ \item{Log on as administrator and copy Scott’s table EMP to Kay. Check the operation.}
+ 
+(I assume DEPT to be EMP because there is no DEPT in scott.)
+\begin{sqlshell}
+conn / as sysdba;
+create table kay.EMP as (select * from scott.EMP);
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Table created.
+\end{messageshell}
+Use select to check the operation:
+\begin{sqlshell}
+select * from kay.EMP;
+\end{sqlshell}
+\begin{messageshell}
+     EMPNO ENAME      JOB              MGR HIREDATE         SAL       COMM
+---------- ---------- --------- ---------- --------- ---------- ----------
+    DEPTNO
+----------
+      7369 SMITH      CLERK           7902 17-DEC-80        800
+        20
+
+      7499 ALLEN      SALESMAN        7698 20-FEB-81       1600        300
+        30
+
+      7521 WARD       SALESMAN        7698 22-FEB-81       1250        500
+        30
+
+
+     EMPNO ENAME      JOB              MGR HIREDATE         SAL       COMM
+---------- ---------- --------- ---------- --------- ---------- ----------
+    DEPTNO
+----------
+      7566 JONES      MANAGER         7839 02-APR-81       2975
+        20
+
+       200 titi       MANAGER         7840 02-APR-81       2975
+        20
+
+\end{messageshell}
+
+ \item{Allow Bob to select data of Kay’s table EMP. What's going on?}
+\begin{sqlshell}
+grant select on kay.EMP to bob;
+\end{sqlshell}
+\begin{messageshell}
+Grant succeeded.
+\end{messageshell}
+Grant is successful, Bob can select table EMP from Kay.
+ \end{enumerate}
+
+\item{Log on as Kay and grant to Bob the privilege to select the Kay’s table EMP with the option for Bob to transmit this privilege to other users. Examine the data dictionary for this information.}
+\begin{sqlshell}
+conn kay/mary;
+grant select on EMP to bob with grant option;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Grant succeeded.
+\end{messageshell}
+Examination of granting result:
+\begin{sqlshell}
+conn / as sysdba;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+\end{messageshell}
+\begin{sqlshell}
+select grantee, table_name, grantor, privilege from dba_tab_privs where grantee='BOB';
+\end{sqlshell}
+\begin{messageshell}
+GRANTEE
+--------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------
+GRANTOR
+--------------------------------------------------------------------------------
+PRIVILEGE
+----------------------------------------
+BOB
+EMP
+KAY
+SELECT
+
+\end{messageshell}
+\item{ }
+ \begin{enumerate}
+ \item{Create user Todd and give him the ability to connect to the database.}
+\begin{sqlshell}
+alter session set "_ORACLE_SCRIPT"=true;
+create user todd identified by ddot default tablespace users quota 1M on users;
+grant create session to todd;
+\end{sqlshell}
+
+\begin{messageshell}
+Session altered.
+User created.
+Grant succeeded.
+\end{messageshell}
+
+ \item{As Bob, allow Todd to select Kay’s table Emp.}
+\begin{sqlshell}
+conn bob/OLINK;
+grant select on kay.emp to todd;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Grant succeeded.
+\end{messageshell}
+
+ \item{As Kay, remove the privilege "select on Emp" from Bob.}
+\begin{sqlshell}
+conn kay/mary;
+revoke select on emp from bob;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Revoke succeeded.
+\end{messageshell}
+
+ \item{As Todd, try to select Kay’s table Emp. What's going on?}
+\begin{sqlshell}
+conn todd/ddot;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+\end{messageshell}
+\begin{sqlshell}
+select * from kay.emp;
+\end{sqlshell}
+\begin{messageshell}
+select * from kay.emp
+                  *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+\end{messageshell}
+Todd doesn't have the privilege to access kay's emp anymore.
+
+ \end{enumerate}
+
+\item{Grant to Kay the privilege to create tables in any schema. As Kay, copy her table Emp in the schema of Bob. What's going on ? As administrator, look at the data dictionary view DBA\_TABLES to verify the result.}
+\begin{sqlshell}
+conn / as sysdba;
+grant create any table to kay;
+conn kay/mary;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Grant succeeded.
+Connected.
+\end{messageshell}
+I assume you don't want to create a table in a 0 quota user. 
+\begin{sqlshell}
+alter user bob quota 1M on users;
+create table bob.emp as (select * from emp);
+\end{sqlshell}
+
+\begin{messageshell}
+User altered.
+Table created.
+\end{messageshell}
+%% Previously we set the quota of bob to 0, so we cannot copy because space quota exceeded.
+The following content can verify the result.
+\begin{sqlshell}
+select owner, table_name from dba_tables where table_name='EMP';
+\end{sqlshell}
+\begin{messageshell}
+OWNER
+--------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------
+SCOTT
+EMP
+
+BOB
+EMP
+
+KAY
+EMP
+\end{messageshell}
+\end{enumerate}
+
+\section{Role Management}
+\begin{enumerate}
+\item{Examine the data dictionary view which allows to list the system privileges of the role RESOURCE .}
+\begin{sqlshell}
+select grantee, privilege from dba_sys_privs where grantee='RESOURCE';
+\end{sqlshell}
+\begin{messageshell}
+GRANTEE  PRIVILEGE
+-------- ----------------------------------------
+RESOURCE CREATE TABLE
+RESOURCE CREATE TYPE
+RESOURCE CREATE OPERATOR
+RESOURCE CREATE INDEXTYPE
+RESOURCE CREATE CLUSTER
+RESOURCE CREATE PROCEDURE
+RESOURCE CREATE SEQUENCE
+RESOURCE CREATE TRIGGER
+
+8 rows selected.
+\end{messageshell}
+
+\item{Create a role DEV permitting to create tables, views and select data in the Kay’s table Emp .}
+\begin{sqlshell}
+alter session set "_ORACLE_SCRIPT"=true;  
+create role dev not identified;
+grant create table, create view to dev;
+grant select on kay.emp to dev;
+\end{sqlshell}
+\begin{messageshell}
+Session altered.
+Role created.
+Grant succeeded.
+Grant succeeded.
+\end{messageshell}
+
+\item{Attribute the roles RESOURCE and DEV to Bob. Set the automatic activated role as DEV when Bob connects. Check the operation.}
+\begin{sqlshell}
+conn / as sysdba;
+grant resource, dev to bob;
+alter user bob default roles dev;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Grant succeeded.
+User altered.
+\end{messageshell}
+Check the operation by logging in as bob:
+\begin{sqlshell}
+conn bob/OLINK;
+create table emp1 as (select * from kay.emp);
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Table created.
+\end{messageshell}
+
+\item{Grant to Bob the ability to read all information in the data dictionary. Then activate this role by the command "set rolename role." Check if Bob can list the rollback segments.}
+\begin{sqlshell}
+conn / as sysdba;
+grant select any dictionary to bob;
+conn bob/OLINK;
+set role dev;
+\end{sqlshell}
+\begin{messageshell}
+Connected.
+Grant succeeded.
+Connected.
+Role set.
+\end{messageshell}
+Check privilege by selecting rollback segments.
+\begin{sqlshell}
+SELECT segment_name, status FROM dba_rollback_segs;
+\end{sqlshell}
+\begin{messageshell}
+SEGMENT_NAME                   STATUS
+------------------------------ ----------------
+SYSTEM                         ONLINE
+_SYSSMU1_2350702231$           ONLINE
+_SYSSMU2_830629575$            ONLINE
+_SYSSMU3_2382401544$           ONLINE
+_SYSSMU4_4097893920$           ONLINE
+_SYSSMU5_3588313063$           ONLINE
+_SYSSMU6_1225920019$           ONLINE
+_SYSSMU7_792842843$            ONLINE
+_SYSSMU8_3775286582$           ONLINE
+_SYSSMU9_677683072$            ONLINE
+_SYSSMU10_3822963826$          ONLINE
+
+11 rows selected.
+\end{messageshell}
+
+\end{enumerate}
+\section{Import/Export}
+Copy the tables emp and dept of scott to kay (or bob) by using the utility import / export.
+
+There is no dept in scott, so I copy emp only.
+\begin{commandshell}
+$ORACLE_HOME/bin/exp scott/tiger FILE=$HOME/my.dmp TABLES=scott.EMP;
+\end{commandshell}
+\begin{messageshell}
+
+Export: Release 18.0.0.0.0 - Production on Sat Nov 30 15:57:13 2019
+Version 18.3.0.0.0
+
+Copyright (c) 1982, 2018, Oracle and/or its affiliates.  All rights reserved.
+
+
+Connected to: Oracle Database 18c Enterprise Edition Release 18.0.0.0.0 - Production
+Version 18.3.0.0.0
+Export done in US7ASCII character set and AL16UTF16 NCHAR character set
+server uses AL32UTF8 character set (possible charset conversion)
+
+About to export specified tables via Conventional Path ...
+. . exporting table                            EMP          5 rows exported
+EXP-00091: Exporting questionable statistics.
+EXP-00091: Exporting questionable statistics.
+Export terminated successfully with warnings.
+\end{messageshell}
+\begin{commandshell}
+$ORACLE_HOME/bin/imp kay/mary FILE=$HOME/my.dmp  FROMUSER=scott TOUSER=kay TABLES=EMP;
+\end{commandshell}
+\begin{messageshell}
+
+Import: Release 18.0.0.0.0 - Production on Sat Nov 30 15:58:47 2019
+Version 18.3.0.0.0
+
+Copyright (c) 1982, 2018, Oracle and/or its affiliates.  All rights reserved.
+
+
+Connected to: Oracle Database 18c Enterprise Edition Release 18.0.0.0.0 - Production
+Version 18.3.0.0.0
+
+Export file created by EXPORT:V18.00.00 via conventional path
+
+Warning: the objects were exported by SCOTT, not by you
+
+import done in US7ASCII character set and AL16UTF16 NCHAR character set
+import server uses AL32UTF8 character set (possible charset conversion)
+. importing SCOTT's objects into KAY
+IMP-00015: following statement failed because the object already exists:
+ "CREATE TABLE "EMP" ("EMPNO" NUMBER(4, 0) NOT NULL ENABLE, "ENAME" VARCHAR2("
+ "10), "JOB" VARCHAR2(9), "MGR" NUMBER(4, 0), "HIREDATE" DATE, "SAL" NUMBER(7"
+ ", 2), "COMM" NUMBER(7, 2), "DEPTNO" NUMBER(2, 0))  PCTFREE 10 PCTUSED 40 IN"
+ "ITRANS 1 MAXTRANS 255 STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 FREEL"
+ "ISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT)                    LOGGING NO"
+ "COMPRESS"
+Import terminated successfully with warnings.
+\end{messageshell}
+\end{document}
