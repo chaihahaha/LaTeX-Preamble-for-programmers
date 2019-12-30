@@ -914,7 +914,6 @@ And by $a_1y_1+a_2y_2=k$, we have the new value of $a_1$
     a_1^{\mathrm{new}}=a_1^{\mathrm{old}}+ y_1y_2(a_2^{\mathrm{old}}- a_2^{\mathrm{new}})
 \end{align}
 
-And we can obtain corresponding $w$ and a new $b$ easily by (3.7) and (3.8).
 
 %And we have the new value of $b$
 %
@@ -946,6 +945,24 @@ then
         L, \quad a_2^{\mathrm{new}} <L
     \end{cases}
 \]
+
+And we can obtain corresponding $w$ easily by (3.7). New value of $b$ is given by this formula.
+
+\begin{align*}
+    b_1^{\mathrm{new}} &= b^{\mathrm{old}} - E_1 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{11} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{12} \\
+    b_2^{\mathrm{new}} &= b^{\mathrm{old}} - E_2 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{12} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{22} \\
+    b^{\mathrm{new}}&= 
+    \begin{cases}
+        b_1^{\mathrm{new}}, \quad &0<a_1^{\mathrm{new}}<C \\
+        b_2^{\mathrm{new}}, \quad &0<a_2^{\mathrm{new}}<C \\
+        \frac{b_1^{\mathrm{new}}+b_1^{\mathrm{new}}}{2}, \quad &a_1^{\mathrm{new}},a_1^{\mathrm{new}}\in \{0,C\} 
+    \end{cases}
+\end{align*}
+
+Another thing important when implementing this algorithm is that the Lagrange multipliers $a$ must be initialized by 0, so by $b$. This is because this algorithm will keep $\sum_{i=1}^n a_i y_i = 0$, if not initialized to 0, this KKT condition will not hold.
+
+I implemented this algorithm by myself. The code of SMO alogorithm is here \href{https://github.com/chaihahaha/Multiclass-Support-Vector-Machine-Tensorflow}{SVM code} in the file svm\_torch.py.
+
 
 \section{Support Vector Regression}
 
