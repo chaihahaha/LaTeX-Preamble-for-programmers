@@ -1,0 +1,146 @@
+\documentclass[10pt,aspectratio=43,mathserif]{beamer} 
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{animate}
+\usepackage{amsmath,bm,amsfonts,amssymb,enumerate,epsfig,bbm,calc,color,ifthen,capt-of,multimedia,hyperref}
+
+\usepackage{hyperref}
+\usetheme{Berlin} 
+
+
+
+\usepackage{xcolor}
+\usepackage{listings}
+
+\graphicspath{{img/}}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\newcommand{\Console}{Console}
+\lstset{ %
+	backgroundcolor=\color{white},   % choose the background color
+	basicstyle=\footnotesize\rmfamily,     % size of fonts used for the code
+	columns=fullflexible,
+	breaklines=true,                 % automatic line breaking only at whitespace
+	captionpos=b,                    % sets the caption-position to bottom
+	tabsize=4,
+	commentstyle=\color{mygreen},    % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	keywordstyle=\color{blue},       % keyword style
+	stringstyle=\color{mymauve}\ttfamily,     % string literal style
+	numbers=left, 
+%	frame=single,
+	rulesepcolor=\color{red!20!green!20!blue!20},
+	% identifierstyle=\color{red},
+	language=c
+}
+
+
+\title{Support Vector Machines}
+\subtitle{\fontsize{9pt}{14pt}\textbf{Understanding and Implementation}}
+\author{Shitong CHAI}
+\institute{ISIMA}
+\date{\today}
+
+\AtBeginSection[]
+{
+	\begin{frame}<beamer>
+	\frametitle{\textbf{table of contents}}
+	\tableofcontents[currentsection]
+    \end{frame}
+}
+\beamerdefaultoverlayspecification{<+->}
+\begin{document}
+\frame{\titlepage}
+%\section{Table of contents}
+%\begin{frame}{table of contents}
+%\tableofcontents
+%\end{frame}
+
+\section{Understanding}
+\begin{frame}{Soft margin SVM}
+A Support Vector Machine is a classifier $g(x)= w^\top x + b $ that maximizes the margin between the separating hyperplane and supporting vectors. Slack variables $ s=(s_1,\cdots,s_m)^\top\in\mathbb R_+^m $, 
+
+\begin{align*}
+    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \label{svmsoft}\tag{$\mathrm{SVM_{soft}}$} \\
+    &s.t. & & s_i  \geq 1 - y_i(w^\top x_i +b)\\
+    &     & & s_i \geq 0, \ i=1,\cdots,m
+\end{align*}
+\end{frame}
+\begin{frame}{Hinge Loss}
+The formula of hinge loss function is $l(y,\hat y)=\max(0,1-y\hat y)$, and we have
+\begin{align}
+    &l(w^\top x_i+b,\hat y_i) \geq 0 \\
+    &l(w^\top x_i+b,\hat y_i) =\max(0,1-y_i(w^\top x_i+b))\geq 1-y_i(w^\top x_i+b)
+\end{align}
+\begin{align*}
+    &\min & & \frac{1}{2} ||w||^2 + C\sum_{i=1}^m s_i \label{svmsoft}\tag{$\mathrm{SVM_{soft}}$} \\
+    &s.t. & & s_i  \geq 1 - y_i(w^\top x_i +b)\\
+    &     & & s_i \geq 0, \ i=1,\cdots,m
+\end{align*}
+The constraints in the above soft SVM are absorbed into the loss function:
+\begin{align*}
+    &\min & \frac{1}{2}||w||^2 + C \sum_{i=1}^m l(w^\top x_i+b, y_i)
+\end{align*}
+\end{frame}
+
+\begin{frame}{SMO algorithm}
+The dual soft SVM with kernel method:
+\begin{align*}
+    &\min_a & & \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \langle x_i, x_j\rangle - \sum_{i=1}^m a_i  \label{softsvmm}\tag{$\mathrm{SVM_{soft} kernel}$}\\
+    &s.t. \ & & \sum_{i=1}^m a_i y_i=0 \\
+    & & & 0\leq a_i \leq C,\ i=1,\cdots,m  \tag{Box constraint}
+\end{align*}
+Let $E_i=g(x_i)-y_i$ be the error between prediction of SVM and ground truth
+\begin{align*}
+    a_2^{\mathrm{new}} &= a_2^{\mathrm{old}}+\frac{y_2(E_1-E_2)}{\kappa} \\
+    \kappa &=(x_1-x_2)^2 \\
+    a_1^{\mathrm{new}} &=a_1^{\mathrm{old}}+ y_1y_2(a_2^{\mathrm{old}}- a_2^{\mathrm{new}}) 
+\end{align*}
+\end{frame}
+\begin{frame}{SMO algorithm}
+By Box Constraint, we have to clip the value of multipliers.
+\begin{align*}
+\text{If }y_1&\neq y_2\text{, let} \\
+    H&=\min(C,C+a_2^{\mathrm{old}}-a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}-a_1^{\mathrm{old}}); \\
+\text{if }y_1&=y_2\text{,  let} \\
+    H&=\min(C,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}) \\
+    L&=\max(0,a_2^{\mathrm{old}}+a_1^{\mathrm{old}}-C)\\
+        a_2^{\mathrm{new clip}} &= 
+    \begin{cases}
+        H, \quad a_2^{\mathrm{new}}>H \\
+        a_2^{\mathrm{new}}, \quad L\leq a_2^{\mathrm{new}} \leq H \\
+        L, \quad a_2^{\mathrm{new}} <L
+    \end{cases}
+\end{align*}
+\end{frame}
+\begin{frame}{SMO algorithm}
+By the value of $a_1, a_2$, we can deduce the intercept $b_1, b_2$
+\begin{align*}
+    b_1^{\mathrm{new}} &= b^{\mathrm{old}} - E_1 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{11} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{12} \\
+    b_2^{\mathrm{new}} &= b^{\mathrm{old}} - E_2 + (a_1^{\mathrm{old}}-a_1^{\mathrm{new}})y_1 K_{12} + (a_2^{\mathrm{old}}-a_2^{\mathrm{new}})y_2 K_{22} \\
+    b^{\mathrm{new}}&= 
+    \begin{cases}
+        b_1^{\mathrm{new}}, \quad &0<a_1^{\mathrm{new}}<C \\
+        b_2^{\mathrm{new}}, \quad &0<a_2^{\mathrm{new}}<C \\
+        \frac{b_1^{\mathrm{new}}+b_1^{\mathrm{new}}}{2}, \quad &a_1^{\mathrm{new}},a_1^{\mathrm{new}}\in \{0,C\} 
+    \end{cases}
+\end{align*}
+So we can update all the parameters, choosing randomly two multipliers works.
+\end{frame}
+\section{Implementation}
+\begin{frame}{Implementation}
+To train SVM with Hinge Loss, compute the loss function and optimize it directly with gradient descent. For a classification of $n$ classes, train $\begin{pmatrix}n\\2\end{pmatrix}=\frac{n(n-1)}{2}$ classifiers to do binary classification on $i$ and $j$, where $i<j$, $i,j\in\{1,\cdots,n\}$. During prediction, choose the class indicated by most binary classifiers.
+
+To train a dual SVM, use SMO algorithm. The following figure is the decision region and support vectors on a small dataset.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{decision_regions}
+\caption{Decision Regions}
+\end{figure}
+
+\end{frame}
+\end{document}
