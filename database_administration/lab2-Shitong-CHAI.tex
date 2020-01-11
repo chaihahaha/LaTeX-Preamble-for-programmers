@@ -2,18 +2,22 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage[most]{tcolorbox}
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 
-\newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
 
-\newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{sqlshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
 every listing line={\small\ttfamily\bfseries{SQL> }}}
 
-\newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={}}
+
+
 
 \title{Database Management Experiment Report \#2}
 \author{Shitong CHAI}

@@ -2,18 +2,22 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage[most]{tcolorbox}
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 
-\newtcblisting{commandshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
 
-\newtcblisting{sqlshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{sqlshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
 every listing line={\small\ttfamily\bfseries{SQL> }}}
 
-\newtcblisting{messageshell}{colback=black,colupper=white,colframe=yellow!75!black,
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={}}
+
+
 
 \title{Database Management Experiment Report \#3}
 \author{Shitong CHAI}
@@ -90,8 +94,9 @@ SYSTEM
 
 XS\$NULL
 SYSTEM
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -104,8 +109,9 @@ SYSTEM
 
 OUTLN
 SYSTEM
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -118,8 +124,9 @@ SYSAUX
 
 APPQOSSYS
 SYSAUX
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -132,8 +139,9 @@ SYSAUX
 
 ANONYMOUS
 SYSAUX
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -146,8 +154,9 @@ SYSAUX
 
 SI_INFORMTN_SCHEMA
 SYSAUX
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -160,8 +169,9 @@ SYSAUX
 
 ORDPLUGINS
 SYSAUX
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -174,8 +184,9 @@ SYSAUX
 
 ORDDATA
 SYSAUX
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -188,8 +199,8 @@ SYSAUX
 
 ORDSYS
 SYSAUX
-
-
+\end{messageshell}
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -202,8 +213,9 @@ USERS
 
 SYSBACKUP
 USERS
+\end{messageshell}
 
-
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -216,8 +228,8 @@ USERS
 
 SYSRAC
 USERS
-
-
+\end{messageshell}
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
@@ -230,8 +242,8 @@ USERS
 
 SYSKM
 USERS
-
-
+\end{messageshell}
+\begin{messageshell}
 USERNAME
 --------------------------------------------------------------------------------
 DEFAULT_TABLESPACE
