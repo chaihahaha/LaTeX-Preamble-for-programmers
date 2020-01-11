@@ -32,7 +32,12 @@
 \newtcblisting{messageshell}{colback=white,colupper=black,colframe=yellow!75!black,
 listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={}}
-
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+} % for line wrapping
 \title{Report}
 \date{}
 \author{Shitong CHAI}
