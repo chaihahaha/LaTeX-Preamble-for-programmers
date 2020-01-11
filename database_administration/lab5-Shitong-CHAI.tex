@@ -1,0 +1,288 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\newtcblisting{sqlshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\title{Database management Experiment Report \#5}
+\author{Shitong CHAI}
+\date{\vspace{-5ex}}
+\begin{document}
+\maketitle
+\begin{enumerate}
+    \item In the directory /opt/oracle/admin, create a new subdirectory myinst.
+        \begin{commandshell}
+            mkdir /opt/oracle/admin/myinst
+        \end{commandshell}
+
+    \item In the directory /opt/oracle/oradata, create a new subdirectory myinst.
+        \begin{commandshell}
+            mkdir /opt/oracle/oradata/myinst
+        \end{commandshell}
+
+    \item Create the following subdirectories in the /opt/oracle/admin/myinst/ : cdump, dump and pfile.
+        \begin{commandshell}
+            cd /opt/oracle/admin/myinst/
+            mkdir cdump dump pfile
+        \end{commandshell}
+
+    \item Create a new parameter file, for example initmyinst.ora in the pfile directory.
+        \begin{commandshell}
+            cp /opt/oracle/admin/ORCLCDB/pfile/init.ora.922019114844 /opt/oracle/admin/myinst/pfile/initmyinst.ora
+        \end{commandshell}
+        The content of initmyinst.ora is as follows.
+        \begin{lstlisting}[language=python]
+##############################################################################
+# Copyright (c) 1991, 2013 by Oracle Corporation
+##############################################################################
+ 
+###########################################
+# Cache and I/O
+###########################################
+db_block_size=8192
+ 
+###########################################
+# Cursors and Library Cache
+###########################################
+open_cursors=300
+ 
+###########################################
+# Database Identification
+###########################################
+db_name="myinst"
+ 
+###########################################
+# File Configuration
+###########################################
+control_files=("/opt/oracle/oradata/myinst/control01.ctl")
+ 
+###########################################
+# Miscellaneous
+###########################################
+compatible=18.0.0
+diagnostic_dest=/opt/oracle
+memory_target=429m
+ 
+###########################################
+# NLS
+###########################################
+nls_language="AMERICAN"
+nls_territory="AMERICA"
+ 
+###########################################
+# Network Registration
+###########################################
+local_listener=LISTENER_ORCLCDB
+ 
+###########################################
+# Processes and Sessions
+###########################################
+processes=300
+ 
+###########################################
+# Security and Auditing
+###########################################
+audit_file_dest="/opt/oracle/admin/myinst/adump"
+audit_trail=db
+remote_login_passwordfile=EXCLUSIVE
+ 
+###########################################
+# Shared Server
+###########################################
+dispatchers="(PROTOCOL=TCP) (SERVICE=ORCLCDBXDB)"
+        \end{lstlisting}
+    \item Get the creationBD.sql script and modify it to allow the creation of a database with the following configuration.
+
+        The modified script is as follows.
+        \begin{lstlisting}[language=SQL]
+CREATE DATABASE myinst
+USER SYS IDENTIFIED BY oracle
+USER SYSTEM IDENTIFIED BY oracle
+LOGFILE
+GROUP 1 '/opt/oracle/oradata/myinst/myinst_log1a.log' SIZE 50M,
+GROUP 2 '/opt/oracle/oradata/myinst/myinst_log2a.log' SIZE 50M
+MAXLOGFILES 5
+MAXLOGMEMBERS 5
+MAXLOGHISTORY 1
+MAXDATAFILES 30
+MAXINSTANCES 1
+CHARACTER SET US7ASCII
+NATIONAL CHARACTER SET AL16UTF16
+DATAFILE '/opt/oracle/oradata/myinst/system01myinst.dbf' SIZE 300M REUSE
+EXTENT MANAGEMENT LOCAL
+SYSAUX DATAFILE '/opt/oracle/oradata/myinst/sysaux01.dbf' SIZE 300M REUSE
+DEFAULT TEMPORARY TABLESPACE tempts1
+TEMPFILE '/opt/oracle/oradata/myinst/temp01.dbf'
+SIZE 50M REUSE
+UNDO TABLESPACE undotbs1
+DATAFILE '/opt/oracle/oradata/myinst/undotbs01.dbf' SIZE 100M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+        \end{lstlisting}
+    \item Export variable, start instance.
+        \begin{commandshell}
+            export ORACLE_SID="myinst"
+            sqlplus / as sysdba
+        \end{commandshell}
+        To startup 
+        \begin{sqlshell}
+            startup nomount pfile="/opt/oracle/admin/myinst/pfile/initmyinst.ora"
+        \end{sqlshell}
+        \begin{messageshell}
+ORACLE instance started.
+
+Total System Global Area  452981280 bytes
+Fixed Size                  8897056 bytes
+Variable Size             314572800 bytes
+Database Buffers          121634816 bytes
+Redo Buffers                7876608 bytes
+        \end{messageshell}
+        To use the script to create a database
+        \begin{sqlshell}
+            @creationBD.sql
+        \end{sqlshell}
+        \begin{messageshell}
+            Database created.
+        \end{messageshell}
+    \item After creation, make sure that the all of the database files have been created.
+
+        Database files have been created.
+        \begin{commandshell}
+            cd /opt/oracle/oradata/myinst
+            ls
+        \end{commandshell}
+        \begin{messageshell}
+control01.ctl     sysaux01.dbf        undotbs01.dbf
+myinst_log1a.log  system01myinst.dbf
+myinst_log2a.log  temp01.dbf
+        \end{messageshell}
+    \item Display the instance name, database name, data files names, control files names, and log files names.
+        \begin{sqlshell}
+            show parameter instance_name;
+        \end{sqlshell}
+        \begin{messageshell}
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+instance_name                        string      myinst
+        \end{messageshell}
+        \begin{sqlshell}
+            show parameter db_name;
+        \end{sqlshell}
+        \begin{messageshell}
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+db_name                              string      myinst
+        \end{messageshell}
+        \begin{itemize}
+            \item Data file names
+                \begin{sqlshell}
+                    select name from V$datafile;
+                \end{sqlshell}
+                \begin{messageshell}
+NAME
+--------------------------------------------------------------------------------
+/opt/oracle/oradata/myinst/system01myinst.dbf
+/opt/oracle/oradata/myinst/sysaux01.dbf
+/opt/oracle/oradata/myinst/undotbs01.dbf
+                \end{messageshell}
+            \item Control file names
+                \begin{sqlshell}
+                    show parameters control_files;
+                \end{sqlshell}
+                \begin{messageshell}
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+control_files                        string      /opt/oracle/oradata/myinst/con
+                                                 trol01.ctl
+                \end{messageshell}
+            \item Log file names
+                \begin{sqlshell}
+                    select member from v$logfile;
+                \end{sqlshell}
+                \begin{messageshell}
+MEMBER
+--------------------------------------------------------------------------------
+/opt/oracle/oradata/myinst/myinst_log1a.log
+/opt/oracle/oradata/myinst/myinst_log2a.log
+                \end{messageshell}
+        \end{itemize}
+
+    \item Try to see the names of users (dba\_users) in the database? What's going on?
+        \begin{sqlshell}
+            select username from dba_users;
+        \end{sqlshell}
+        Error,  there is no table dba\_users.
+        \begin{messageshell}
+select username from dba_users
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+        \end{messageshell}
+    \item Create data dictionary views, check some of the data dictionary views.
+        \begin{sqlshell}
+            start ?/rdbms/admin/catalog.sql
+         \end{sqlshell}   
+         \begin{messageshell}
+PL/SQL procedure successfully completed.
+
+
+TIMESTAMP
+--------------------------------------------------------------------------------
+COMP_TIMESTAMP CATALOG    2020-01-11 21:43:23
+
+
+Session altered.
+
+
+Session altered.
+         \end{messageshell}
+         \begin{sqlshell}
+             select username from dba_users;
+         \end{sqlshell}
+         \begin{messageshell}
+USERNAME
+--------------------------------------------------------------------------------
+SYSTEM
+SYS
+SYSBACKUP
+SYSRAC
+AUDSYS
+SYSKM
+OUTLN
+SYSDG
+
+8 rows selected.
+         \end{messageshell}             
+         \begin{sqlshell}
+             desc dba_tables;
+         \end{sqlshell}
+         \begin{messageshell}
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OWNER                                     NOT NULL VARCHAR2(128)
+ TABLE_NAME                                NOT NULL VARCHAR2(128)
+ TABLESPACE_NAME                                    VARCHAR2(30)
+ CLUSTER_NAME                                       VARCHAR2(128)
+ IOT_NAME                                           VARCHAR2(128)
+ STATUS                                             VARCHAR2(8)
+ ...
+\end{messageshell}             
+\end{enumerate}
+
+\end{document}
