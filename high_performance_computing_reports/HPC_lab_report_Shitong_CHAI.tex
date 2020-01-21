@@ -1,0 +1,563 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage{amsmath, amsthm, amsfonts} % depended by \DeclareMathOperator, \newtheorem, \proof, \mathbb
+\usepackage[utf8]{inputenc} % utf8 encoding
+\usepackage{listings} % for lst in color box
+\usepackage[most]{tcolorbox} % for messageshell colorbox
+\usepackage{algorithm} % depended by algpseudocode
+\usepackage[noend]{algpseudocode} % pseudocode
+
+\usepackage{hyperref} % add clickable link to tableofcontents
+\usepackage{enumitem} % use enumerate
+\usepackage{float} % for [H] label in figures
+\usepackage{url} % for citing wiki
+
+\usepackage{fancyhdr} % add header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+\graphicspath{{img/}}
+
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  breaklines=true
+}
+
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[shchai@turing]\$} }}
+
+\newtcblisting{sqlshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+} % for line wrapping
+\title{HPC Lab \#2 Report}
+\date{}
+\author{Shitong CHAI}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter {Basics}
+Test code "billion.c":
+\begin{lstlisting}[language=C]
+#include "mt19937ar.h"
+int main(void)
+{
+    long i;
+    unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4, tmp;
+    init_by_array(init, length);
+    printf("1 000 000 000 outputs of genrand_int32()\n");
+    for (i=0; i<1000000000; i++) {
+    tmp = genrand_int32();
+    //printf("%10lu ", genrand_int32());
+    //if (i%5==4) printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+Without optimization:
+\begin{commandshell}
+    gcc billion.c
+    time ./a.out
+\end{commandshell}
+\begin{messageshell}
+1 000 000 000 outputs of genrand_int32()
+
+real    0m7,508s
+user    0m7,477s
+sys 0m0,002s
+\end{messageshell}
+
+With optimization(O2):
+\begin{commandshell}
+    gcc -O2 billion.c
+    time ./a.out
+\end{commandshell}
+\begin{messageshell}
+1 000 000 000 outputs of genrand_int32()
+
+real    0m3,203s
+user    0m3,190s
+sys 0m0,001s
+\end{messageshell}
+With optimization(O3)
+\begin{commandshell}
+    gcc -O3 billion.c
+    time ./a.out
+\end{commandshell}
+\begin{messageshell}
+1 000 000 000 outputs of genrand_int32()
+
+real    0m3,490s
+user    0m3,478s
+sys 0m0,001s
+\end{messageshell}
+
+From the result we know that the speed of compiled code: O3 > O2 > Without Optimization. But O3 cannot guarantee the correctness of compiled code, so I should not use it.
+
+\chapter {Use of CLHEP for stochastic simulation}
+\begin{enumerate}
+    \item Unzip CLHEP
+        \begin{commandshell}
+            tar zxvf CLHEP.tgz
+        \end{commandshell}
+    \item Compile
+
+        Clear the environment variables to avoid errors.
+        \begin{commandshell}
+unset C_INCLUDE_PATH 
+unset CPLUS_INCLUDE_PATH 
+        \end{commandshell}
+        Compile without multithread compilation.
+        \begin{commandshell}
+./configure --prefix=$pwd
+time make
+        \end{commandshell}
+        \begin{messageshell}
+
+real    0m2,129s
+user    0m1,139s
+sys     0m1,059s
+        \end{messageshell}
+
+        Compile with multithread compilation(-j8).
+        \begin{commandshell}
+./configure --prefix=$pwd
+time make -j8
+        \end{commandshell}
+        \begin{messageshell}
+
+real    0m0,905s
+user    0m0,413s
+sys     0m0,560s
+        \end{messageshell}
+        So multithread compilation on a multi-processor computer is much faster, I should use it.
+
+    \item Test the code
+
+        Display object files in libCLHEP static library:
+        \begin{commandshell}
+ar -t lib/libCLHEP-Random-2.1.0.0.a
+        \end{commandshell}
+        \begin{messageshell}
+DoubConv.o
+DRand48Engine.o
+DualRand.o
+EngineFactory.o
+engineIDulong.o
+erfQ.o
+flatToGaussian.o
+gammln.o
+Hurd160Engine.o
+Hurd288Engine.o
+JamesRandom.o
+MTwistEngine.o
+NonRandomEngine.o
+RandBinomial.o
+RandBit.o
+RandBreitWigner.o
+RandChiSquare.o
+RandEngine.o
+RandExponential.o
+RandFlat.o
+RandGamma.o
+RandGauss.o
+RandGaussQ.o
+RandGaussT.o
+RandGeneral.o
+RandLandau.o
+Random.o
+RandomEngine.o
+RandPoisson.o
+RandPoissonQ.o
+RandPoissonT.o
+        \end{messageshell}
+        \begin{messageshell}
+RandStudentT.o
+RanecuEngine.o
+Ranlux64Engine.o
+RanluxEngine.o
+RanshiEngine.o
+StaticRandomStates.o
+TripleRand.o
+SobolQRNGB.o
+SobolQRNG.o
+Sobol.o
+QRNG.o
+EngineInstantiator.o
+        \end{messageshell}
+        Compile the test code and run it:
+        \begin{commandshell}
+g++ -c testRand.cpp –I./include
+g++ -o myExe testRand.cpp -I./inclue -L./lib -lCLHEP-Random-2.1.0.0
+cp lib/libCLHEP-Random-2.1.0.0.so ./
+./myExe
+        \end{commandshell}
+        \begin{messageshell}
+        0.49954
+        \end{messageshell}
+        Compile test code in folder \emph{test} and run it:
+        \begin{commandshell}
+g++ -o myTest test/testRandom.cc -I./include -L./lib -lCLHEP-Random-2.1.0.0 
+./myTest
+        \end{commandshell}
+        \begin{messageshell}
+Flat ]0,1[          : 0.144393
+ Flat ]0,5[          : 4.76838
+ Flat ]-5,3[         : -2.0195
+ Exp (m=1)           : 0.0452806
+ Exp (m=3)           : 2.44079
+ Gauss (m=1)         : 0.796083
+ Gauss (m=3,v=1)     : 4.65933
+ Wigner(1,0.2)       : 1.23522
+ Wigner(1,0.2,1)     : 0.606401
+ Wigner2(1,0.2)      : 0.862301
+ Wigner2(1,0.2,1)    : 0.864878
+ IntFlat [0,99[      : 34
+ IntFlat [-99,37[    : -77
+ Poisson (m=3.0)     : 2
+ Binomial(n=1,p=0.5) : 0
+ Binomial(n=-5,p=0.3): -1
+ ChiSqr (a=1)        : 1.13581
+ ChiSqr (a=-5)       : -1
+ Gamma (k=1,l=1)     : 0.112015
+ Gamma (k=3,l=0.5)   : 3.51121
+ StudT (a=1)         : 1.22742
+ StudT (a=2.5)       : 0.619478
+
+ Shooting an array of 5 flat numbers ...
+
+ 0.0441578 0.490342 0.227369 0.245644 0.326754
+        \end{messageshell}
+
+
+    \item Test "sequence splitting"
+
+        First, add the dynamic library file path to \emph{LD\_LIBRARY\_PATH}.
+        \begin{commandshell}
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/lib
+        \end{commandshell}
+        Then edit the file \emph{testMT.cc} as follows:
+        \begin{lstlisting}[language=C++]
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <unistd.h>
+
+#include "CLHEP/Random/MTwistEngine.h"
+
+using namespace std;
+
+int main ()
+{
+    double rn;
+
+    CLHEP::MTwistEngine * myMT = new CLHEP::MTwistEngine();
+
+    cout << "Drawings before restoring status:" << endl;
+    int N=3;
+    char filename[20];
+    for(int j = 1; j <= N; j++)
+    {
+        sprintf(filename, "status%d.mts", j);
+        cout << "Saving status to file: " << filename << endl;
+        myMT->saveStatus(filename);
+
+        for(int i = 1; i <= 10; i++)
+        {
+          rn = myMT->flat();
+          cout << rn << endl;
+        }
+    }
+
+    cout << "Drawings after restoring status:" << endl;
+    for(int j = 1; j <= N; j++)
+    {
+        sprintf(filename, "status%d.mts", j);
+        cout << "Restoring status from file: " << filename << endl;
+        myMT->restoreStatus(filename);
+        for(int i = 1; i <= 10; i++)
+        {
+          rn = myMT->flat();
+          cout << rn << endl;
+        }
+    }
+
+    return 0;
+}
+        \end{lstlisting}
+        Then compile and run:
+        \begin{commandshell}
+            g++ -o myTestMT testMT.cc -I../include -lCLHEP-Random-2.1.0.0
+            ./myTestMT
+        \end{commandshell}
+        Three files showed up in the folder Random after running the binary: \emph{status1.mts}, \emph{status2.mts}, \emph{status3.mts}.
+
+        The output is as follows:
+        \begin{messageshell}
+Drawings before restoring status:
+Saving status to file: status1.mts
+0.176117
+0.0202835
+0.863258
+0.118952
+0.463625
+0.0618998
+0.823987
+0.571751
+0.0917234
+0.777519
+Saving status to file: status2.mts
+0.54103
+0.42616
+0.0279915
+0.282957
+0.24201
+0.227266
+0.342152
+0.0723833
+0.0445422
+0.655051
+Saving status to file: status3.mts
+0.0964713
+0.787848
+0.809372
+0.458899
+0.729496
+0.942444
+0.285541
+0.689074
+0.273858
+0.718734
+        \end{messageshell}
+        \begin{messageshell}
+Drawings after restoring status:
+Restoring status from file: status1.mts
+0.176117
+0.0202835
+0.863258
+0.118952
+0.463625
+0.0618998
+0.823987
+0.571751
+0.0917234
+0.777519        
+Restoring status from file: status2.mts
+0.54103
+0.42616
+0.0279915
+0.282957
+0.24201
+0.227266
+0.342152
+0.0723833
+0.0445422
+0.655051
+Restoring status from file: status3.mts
+0.0964713
+0.787848
+0.809372
+0.458899
+0.729496
+0.942444
+0.285541
+0.689074
+0.273858
+0.718734
+        \end{messageshell}
+    \item Precompute 10 statuses for length one billion.
+
+        Modify the source file \emph{testMT.cc} into \emph{test\_billion.cc} which is as follows.
+        \begin{lstlisting}[language=C++]
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <unistd.h>
+
+#include "CLHEP/Random/MTwistEngine.h"
+
+using namespace std;
+
+int main ()
+{
+    double rn;
+
+    CLHEP::MTwistEngine * myMT = new CLHEP::MTwistEngine();
+
+    cout << "Drawings before restoring status:" << endl;
+    int N=10;
+    int sequence_len = 1'000'000'000;
+    char filename[20];
+    for(int j = 1; j <= N; j++)
+    {
+        sprintf(filename, "status%d.mts", j);
+        cout << "Saving status to file: " << filename << endl;
+        myMT->saveStatus(filename);
+
+        for(int i = 1; i <= sequence_len; i++)
+        {
+          rn = myMT->flat();
+        }
+    }
+    return 0;
+}
+        \end{lstlisting}
+        Use the following commands to compile and run:
+        \begin{commandshell}
+            g++ -o myTestMT_billion testMT_billion.cc -I../include -lCLHEP-Random-2.1.0.0
+            ./myTestMT_billion
+        \end{commandshell}
+        After running the binary, 10 files(\emph{status1.mts to status10.mts}) appear in the folder \emph{Random}.
+
+        The command line output:
+        \begin{messageshell}
+Drawings before restoring status:
+Saving status to file: status1.mts
+Saving status to file: status2.mts
+Saving status to file: status3.mts
+Saving status to file: status4.mts
+Saving status to file: status5.mts
+Saving status to file: status6.mts
+Saving status to file: status7.mts
+Saving status to file: status8.mts
+Saving status to file: status9.mts
+Saving status to file: status10.mts
+        \end{messageshell}
+\end{enumerate}
+
+\chapter{Parallel MC simulation}
+
+Modify the source file \emph{SimulPiUK.c} into source file \emph{SimulPiUK.cpp} which is as follows:
+\begin{lstlisting}[language=C++]
+#include "CLHEP/Random/MTwistEngine.h"
+#include<iostream>
+using namespace std;
+
+CLHEP::MTwistEngine * myMT = new CLHEP::MTwistEngine();
+double genrand_real1()
+{
+	return myMT->flat();
+}
+/* ------------------------------------------------------------------- */
+/* simulPi             Compute PI with Monte Carlo sampling            */
+/*                                                                     */
+/* Random points are drawn in the unit square [0..1] x [0..1]          */
+/* We count all points that are on the upper right quarter of the disc */
+/* The proportion of these points relatively to the total number of    */
+/* converges towards PI / 4.                                           */
+/*                                                                     */
+/* In input: inNbPts the number of points for the estimate of PI       */
+/*                                                                     */
+/* Output: an approximate value of PI in double precision              */
+/* ------------------------------------------------------------------- */
+
+double simulPi(int inNbPts)
+{
+   int    i;
+   double xr     = 0.;
+   double yr     = 0.;
+   double pi     = 0.;
+   int    inDisk = 0;
+
+   // Loop to sample the quarter of the Unit disc (PI / 4 area) 
+   // 2 random coordinates are drawn to give random point
+   // The distance bewteen 0 and this point is calculated (norm) 
+   // If it is less than the radius (1), the point is on the quarter disc
+   for(i = 0; i < inNbPts; i++)
+   {
+      xr = genrand_real1();
+      yr = genrand_real1();
+ 
+      if ((xr * xr + yr * yr) <= 1)
+      {
+         inDisk++;
+      }
+   }
+   
+   // casting of integers into double for precise computing of real numbers
+   // The surface is multiplied by 4 to estimate PI
+   pi = ((double) inDisk / (double) inNbPts) * 4.;
+
+   return pi;
+}
+/* ------------------------------------------------------------------ */
+
+int main(int argc, char *argv[])
+{
+	char filename[20];
+	
+	sprintf(filename, "status%s.mts", argv[1]);
+
+	myMT->restoreStatus(filename);
+	cout << simulPi(1000'000'000);
+	return 0;
+}
+
+\end{lstlisting}
+Then compile the source file using the commands:
+\begin{commandshell}
+    g++ -O2 -o mcPI simuPiUK.cpp -I../include -lCLHEP-Random-2.1.0.0
+\end{commandshell}
+Then add a Python script named \emph{mapReduce.py} which is as follows
+\begin{lstlisting}[language=Python]
+import numpy as np
+import scipy.stats
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0 * np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+    return m-h, m+h
+
+s = "./mcPI "
+bashCmdArr = [s+str(i) for i in range(1,11,1)]
+import subprocess
+processes = []
+outputs = []
+for i in range(10):
+    processes.append(subprocess.Popen(bashCmdArr[i].split(), stdout=subprocess.PIPE))
+for i in range(10):
+    output, error = processes[i].communicate()
+    outputs.append(output)
+outputs = [float(i) for i in outputs]
+print(mean_confidence_interval(outputs))
+\end{lstlisting}
+Run the script to start 10 different processes with different status, parse the output and print the confidence interval. Use \emph{time} to record the time consumed.
+\begin{commandshell}
+    time python mapReduce.py
+\end{commandshell}
+The output is
+\begin{messageshell}
+(3.1415495685905936, 3.141656431409406)
+
+real    0m10,340s
+user    1m36,230s
+sys     0m0,104s
+\end{messageshell}
+
+So the resulting confidence interval is $[3.1415495685905936, 3.141656431409406]$ with 95\% confidence.
+\end{document}
+
