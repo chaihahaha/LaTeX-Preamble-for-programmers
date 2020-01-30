@@ -1,0 +1,394 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage{amsmath, amsthm, amsfonts} % depended by \DeclareMathOperator, \newtheorem, \proof, \mathbb
+\usepackage[utf8]{inputenc} % utf8 encoding
+\usepackage{listings} % for lst in color box
+\usepackage[most]{tcolorbox} % for messageshell colorbox
+\usepackage{algorithm} % depended by algpseudocode
+
+\usepackage{hyperref} % add clickable link to tableofcontents
+\usepackage{enumitem} % use enumerate
+\usepackage{float} % for [H] label in figures
+\usepackage{url} % for citing wiki
+
+\usepackage{fancyhdr} % add header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+\graphicspath{{img/}}
+
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\lstset{language=SQL,morekeywords={PREFIX,java,rdf,rdfs,url}}
+
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\title{Semantics Web Lab \#3 Report}
+\date{}
+\author{Shitong CHAI}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Query a remote dataset(Ex 3)}
+\section{List all the properties (predicates) of the ressource}
+The query file \emph{lab3.3.1.sparql}:
+\begin{lstlisting}[frame=single]
+    PREFIX dbo:<http://dbpedia.org/ontology/>
+    PREFIX dbp:<http://dbpedia.org/resource/>
+    select distinct ?p {
+        dbp:The_Beatles ?p ?o .
+    }
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+    arq --data http://dbpedia.org/data/The_Beatles.rdf --query ./lab3.3.1.sparql
+\end{commandshell}
+Result:
+\begin{messageshell}
+-----------------------------------------------------
+| p                                                 |
+=====================================================
+| <http://dbpedia.org/property/n>                   |
+| <http://dbpedia.org/property/d>                   |
+| <http://dbpedia.org/property/alt>                 |
+| <http://xmlns.com/foaf/0.1/name>                  |
+| <http://xmlns.com/foaf/0.1/isPrimaryTopicOf>      |
+| <http://dbpedia.org/property/mw>                  |
+| dbo:associatedMusicalArtist                       |
+| <http://www.w3.org/2002/07/owl#sameAs>            |
+| <http://www.w3.org/2000/01/rdf-schema#comment>    |
+| <http://xmlns.com/foaf/0.1/homepage>              |
+| <http://purl.org/dc/terms/subject>                |
+| dbo:wikiPageExternalLink                          |
+| <http://purl.org/linguistics/gold/hypernym>       |
+| <http://www.w3.org/2000/01/rdf-schema#seeAlso>    |
+| dbo:genre                                         |
+| <http://dbpedia.org/property/pos>                 |
+| dbo:abstract                                      |
+| <http://dbpedia.org/property/title>               |
+| <http://dbpedia.org/property/s>                   |
+| <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> |
+| <http://dbpedia.org/property/c>                   |
+| <http://dbpedia.org/property/wikt>                |
+| <http://dbpedia.org/property/m>                   |
+| <http://dbpedia.org/property/caption>             |
+| dbo:background                                    |
+| <http://dbpedia.org/property/b>                   |
+| <http://dbpedia.org/property/wordnet_type>        |
+| dbo:wikiPageID                                    |
+| <http://www.w3.org/ns/prov#wasDerivedFrom>        |
+| dbo:activeYearsStartYear                          |
+| <http://dbpedia.org/property/state>               |
+| dbo:thumbnail                                     |
+| <http://dbpedia.org/property/show>                |
+| dbo:associatedBand                                |
+| dbo:soundRecording                                |
+| <http://xmlns.com/foaf/0.1/depiction>             |
+| dbo:wikiPageRevisionID                            |
+| dbo:recordLabel                                   |
+| <http://dbpedia.org/property/ref>                 |
+| dbo:hometown                                      |
+| <http://dbpedia.org/property/q>                   |
+| dbo:formerBandMember                              |
+| <http://www.w3.org/2000/01/rdf-schema#label>      |
+-----------------------------------------------------
+\end{messageshell}
+\section{Count the number of Wiki pages external links}
+The query file \emph{lab3.3.2.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+select count(?o){
+dbp:The_Beatles dbo:wikiPageExternalLink ?o .
+}
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+arq --data http://dbpedia.org/data/The_Beatles.rdf --query ./lab3.3.2.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+------
+| .1 |
+======
+| 74 |
+------
+\end{messageshell}
+
+\section{Count the numbers of record labels}
+The query file \emph{lab3.3.3.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+select count(*) {
+?x dbo:recordLabel ?y .
+filter (?y != dbp:Apple_Records ) .
+}
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+arq --data http://dbpedia.org/data/The_Beatles.rdf --query ./lab3.3.3.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+------
+| .1 |
+======
+| 7  |
+------
+\end{messageshell}
+
+\section{Give the home town (dbo:hometown) of the artist}
+The query file \emph{lab3.3.4.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+select ?hometown {
+dbp:Carnival_of_Light  dbo:artist ?a.
+?a dbo:hometown ?hometown .
+}
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+arq --data http://dbpedia.org/data/The_Beatles.rdf --query ./lab3.3.4.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+-----------------
+| hometown      |
+=================
+| dbp:Liverpool |
+-----------------
+\end{messageshell}
+\section{Run the following command}
+\begin{commandshell}
+arq --query=qmg5.txt
+\end{commandshell}
+Results:
+\begin{messageshell}
+----------------------------------------------------------------
+| x                                         | y                |
+================================================================
+| <http://dbpedia.org/resource/The_Beatles> | "The Beatles"@en |
+----------------------------------------------------------------
+\end{messageshell}
+The query file \emph{qmg5.txt} specified a named graph and performed query on it by foaf:name.
+
+
+\chapter{Query a remote endpoint(Ex 4)}
+\section{Find 50 concepts in the DBPedia dataset}
+The query file \emph{lab3.4.1.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    select distinct ?concept {
+        ?x rdf:type ?concept .
+    }
+    limit 50
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+    rsparql --service http://dbpedia.org/sparql --query ./lab3.4.1.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+----------------------------------------------------------------------
+| concept                                                            |
+======================================================================
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMapFormat>          |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadStorage>            |
+| <http://www.openlinksw.com/schemas/virtrdf#array-of-QuadMapFormat> |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMap>                |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMapValue>           |
+| <http://www.openlinksw.com/schemas/virtrdf#array-of-QuadMapColumn> |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMapColumn>          |
+| <http://www.openlinksw.com/schemas/virtrdf#array-of-QuadMapATable> |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMapATable>          |
+| <http://www.openlinksw.com/schemas/virtrdf#QuadMapFText>           |
+| <http://www.openlinksw.com/schemas/virtrdf#array-of-string>        |
+| <http://www.openlinksw.com/schemas/virtrdf#array-of-QuadMap>       |
+| <http://www.w3.org/2002/07/owl#InverseFunctionalProperty>          |
+| <http://www.w3.org/2002/07/owl#SymmetricProperty>                  |
+| <http://www.w3.org/2002/07/owl#FunctionalProperty>                 |
+| <http://www.w3.org/2002/07/owl#TransitiveProperty>                 |
+| rdf:Property                                                       |
+| <http://www.w3.org/2002/07/owl#Thing>                              |
+| <http://www.w3.org/2002/07/owl#Class>                              |
+| <http://www.w3.org/2002/07/owl#Ontology>                           |
+| <http://www.w3.org/2000/01/rdf-schema#Class>                       |
+| <http://www.w3.org/2002/07/owl#OntologyProperty>                   |
+| <http://www.w3.org/2002/07/owl#AnnotationProperty>                 |
+| <http://www.w3.org/2002/07/owl#Restriction>                        |
+| <http://www.w3.org/2002/07/owl#ObjectProperty>                     |
+| <http://www.w3.org/2002/07/owl#DatatypeProperty>                   |
+| <http://www.w3.org/ns/sparql-service-description#Service>          |
+| <http://www.wikidata.org/entity/Q1072319>                          |
+| <http://www.wikidata.org/entity/Q1075310>                          |
+| <http://www.wikidata.org/entity/Q1121471>                          |
+| <http://www.wikidata.org/entity/Q112983>                           |
+| <http://www.wikidata.org/entity/Q11629>                            |
+| <http://www.wikidata.org/entity/Q12284>                            |
+| <http://www.wikidata.org/entity/Q12308941>                         |
+| <http://www.wikidata.org/entity/Q1231865>                          |
+| <http://www.wikidata.org/entity/Q1367>                             |
+| <http://www.wikidata.org/entity/Q1484611>                          |
+| <http://www.wikidata.org/entity/Q15253558>                         |
+| <http://www.wikidata.org/entity/Q15991290>                         |
+| <http://www.wikidata.org/entity/Q1762059>                          |
+| <http://www.wikidata.org/entity/Q17633526>                         |
+| <http://www.wikidata.org/entity/Q1889>                             |
+| <http://www.wikidata.org/entity/Q192110>                           |
+| <http://www.wikidata.org/entity/Q200539>                           |
+| <http://www.wikidata.org/entity/Q2066131>                          |
+| <http://www.wikidata.org/entity/Q21>                               |
+| <http://www.wikidata.org/entity/Q210112>                           |
+| <http://www.wikidata.org/entity/Q213>                              |
+| <http://www.wikidata.org/entity/Q22330922>                         |
+| <http://www.wikidata.org/entity/Q250867>                           |
+----------------------------------------------------------------------
+\end{messageshell}
+
+\section{Give the names of members of bandnames playing Jazz music.}
+The query file \emph{lab3.4.2.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:    <http://purl.org/dc/terms/>
+    select distinct ?memberName {
+        ?member foaf:name ?memberName .
+        ?band dbo:bandMember ?member .
+        ?band dbo:genre ?genre .
+        ?genre  dct:subject dbp:Category:Jazz_genres .
+    }
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+    rsparql --service http://dbpedia.org/sparql --query ./lab3.4.2.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+...
+| "Jakko Jakszyk"@en                                                    |
+| "Justin Pearson"@en                                                   |
+| "Nick Heyward"@en                                                     |
+| "Skerik"@en                                                           |
+| "Jeffrey Kollman"@en                                                  |
+| "Jeff Kollman"@en                                                     |
+| "Andy Moor"@en                                                        |
+| "Ben Cauley"@en                                                       |
+| "Scott Bomar"@en                                                      |
+| "Les Nemes"@en                                                        |
+-------------------------------------------------------------------------
+\end{messageshell}
+
+\section{List all the properties of dbpedia whose subject is Alan Turing}
+The query file \emph{lab3.4.3.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:    <http://purl.org/dc/terms/>
+    select distinct ?ppt {
+        ?x dct:subject  dbp:Category:Alan_Turing.
+        ?x ?ppt ?y .
+    }
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+    rsparql --service http://dbpedia.org/sparql --query ./lab3.4.3.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+------------------------------------------------------
+| ppt                                                |
+======================================================
+| rdf:type                                           |
+| <http://www.w3.org/2000/01/rdf-schema#label>       |
+| <http://www.w3.org/2000/01/rdf-schema#comment>     |
+| <http://www.w3.org/2000/01/rdf-schema#seeAlso>     |
+| <http://www.w3.org/2002/07/owl#sameAs>             |
+| dbo:deathPlace                                     |
+| dbo:deathDate                                      |
+| dbo:birthPlace                                     |
+| <http://dbpedia.org/property/birthPlace>           |
+| dbo:birthDate                                      |
+| dct:subject                                        |
+| dbo:wikiPageID                                     |
+| dbo:wikiPageRevisionID                             |
+| dbo:wikiPageWikiLink                               |
+| dbo:wikiPageExternalLink                           |
+| dbo:wikiPageRedirects                              |
+| foaf:name                                          |
+| foaf:homepage                                      |
+| <http://dbpedia.org/property/name>                 |
+...
+\end{messageshell}
+
+\section{Give the list of the doctoral students of the doctoral advisor of Alan Turing}       
+The query file \emph{lab3.4.4.sparql}:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbp:<http://dbpedia.org/resource/>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:    <http://purl.org/dc/terms/>
+    select distinct ?name {
+        dbp:Alan_Turing dbo:doctoralAdvisor ?advisor .
+        ?advisor dbo:doctoralStudent ?student .
+        ?student foaf:name ?name .
+    }
+\end{lstlisting}
+To run the query:
+\begin{commandshell}
+    rsparql --service http://dbpedia.org/sparql --query ./lab3.4.4.sparql
+\end{commandshell}
+Results:
+\begin{messageshell}
+---------------------------------
+| name                          |
+=================================
+| "Raymond Smullyan"@en         |
+| "Raymond Merrill Smullyan"@en |
+| "Dana Scott"@en               |
+| "Dana Stewart Scott"@en       |
+| "J. Barkley Rosser"@en        |
+| "John Barkley Rosser"@en      |
+| "Alan Turing"@en              |
+| "David Kaplan"@en             |
+| "Leon Henkin"@en              |
+| "Martin Davis"@en             |
+| "Alfred Foster"@en            |
+| "Michael O. Rabin"@en         |
+| "Michael Oser Rabin"@en       |
+| "C. Anthony Anderson"@en      |
+| "George Alfred Barnard"@en    |
+| "George A. Barnard"@en        |
+| "Gary R. Mar"@en              |
+---------------------------------
+\end{messageshell}
+\end{document}
