@@ -25,19 +25,24 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
-
-\lstset{
-  breaklines=true
-}
-\newtcblisting{messageshell}{colback=white,colupper=black,colframe=yellow!75!black,
-listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
-every listing line={}}
 \lstset{
   basicstyle=\ttfamily,
   columns=fullflexible,
   breaklines=true,
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
-} % for line wrapping
+}
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\newtcblisting{sqlshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=SQL, breaklines=true, aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{SQL> }}}
+
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
 \title{Report}
 \date{}
 \author{Shitong CHAI}
