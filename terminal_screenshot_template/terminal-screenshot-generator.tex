@@ -5,6 +5,12 @@
 \usepackage{geometry} % set margin
 \geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 \newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
 listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
 every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
