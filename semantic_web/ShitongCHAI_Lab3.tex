@@ -53,11 +53,11 @@ every listing line={}}
 \section{List all the properties (predicates) of the ressource}
 The query file \emph{lab3.3.1.sparql}:
 \begin{lstlisting}[frame=single]
-    PREFIX dbo:<http://dbpedia.org/ontology/>
-    PREFIX dbp:<http://dbpedia.org/resource/>
-    select distinct ?p {
-        dbp:The_Beatles ?p ?o .
-    }
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+select distinct ?p {
+    dbr:The_Beatles ?p ?o .
+}
 \end{lstlisting}
 To run the query:
 \begin{commandshell}
@@ -117,9 +117,9 @@ Result:
 The query file \emph{lab3.3.2.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 select count(?o){
-dbp:The_Beatles dbo:wikiPageExternalLink ?o .
+dbr:The_Beatles dbo:wikiPageExternalLink ?o .
 }
 \end{lstlisting}
 To run the query:
@@ -139,10 +139,10 @@ Results:
 The query file \emph{lab3.3.3.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
-select count(*) {
+PREFIX dbr:<http://dbpedia.org/resource/>
+select count(distinct ?y) {
 ?x dbo:recordLabel ?y .
-filter (?y != dbp:Apple_Records ) .
+filter (?y != dbr:Apple_Records) .
 }
 \end{lstlisting}
 To run the query:
@@ -162,9 +162,9 @@ Results:
 The query file \emph{lab3.3.4.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 select ?hometown {
-dbp:Carnival_of_Light  dbo:artist ?a.
+dbr:Carnival_of_Light  dbo:artist ?a.
 ?a dbo:hometown ?hometown .
 }
 \end{lstlisting}
@@ -200,13 +200,13 @@ The query file \emph{qmg5.txt} specified a named graph and performed query on it
 The query file \emph{lab3.4.1.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 prefix foaf:  <http://xmlns.com/foaf/0.1/>
 prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    select distinct ?concept {
-        ?x rdf:type ?concept .
-    }
-    limit 50
+select distinct ?concept {
+?x rdf:type ?concept .
+}
+limit 50
 \end{lstlisting}
 To run the query:
 \begin{commandshell}
@@ -274,16 +274,16 @@ Results:
 The query file \emph{lab3.4.2.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 prefix foaf:  <http://xmlns.com/foaf/0.1/>
 prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dct:    <http://purl.org/dc/terms/>
-    select distinct ?memberName {
-        ?member foaf:name ?memberName .
-        ?band dbo:bandMember ?member .
-        ?band dbo:genre ?genre .
-        ?genre  dct:subject dbp:Category:Jazz_genres .
-    }
+select distinct ?memberName {
+?member foaf:name ?memberName .
+?band dbo:bandMember ?member .
+?band dbo:genre ?genre .
+?genre  dct:subject dbr:Category:Jazz_genres .
+}
 \end{lstlisting}
 To run the query:
 \begin{commandshell}
@@ -309,14 +309,14 @@ Results:
 The query file \emph{lab3.4.3.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 prefix foaf:  <http://xmlns.com/foaf/0.1/>
 prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dct:    <http://purl.org/dc/terms/>
-    select distinct ?ppt {
-        ?x dct:subject  dbp:Category:Alan_Turing.
-        ?x ?ppt ?y .
-    }
+select distinct ?ppt {
+?x dct:subject  dbr:Category:Alan_Turing.
+?x ?ppt ?y .
+}
 \end{lstlisting}
 To run the query:
 \begin{commandshell}
@@ -353,15 +353,15 @@ Results:
 The query file \emph{lab3.4.4.sparql}:
 \begin{lstlisting}[frame=single]
 PREFIX dbo:<http://dbpedia.org/ontology/>
-PREFIX dbp:<http://dbpedia.org/resource/>
+PREFIX dbr:<http://dbpedia.org/resource/>
 prefix foaf:  <http://xmlns.com/foaf/0.1/>
 prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dct:    <http://purl.org/dc/terms/>
-    select distinct ?name {
-        dbp:Alan_Turing dbo:doctoralAdvisor ?advisor .
-        ?advisor dbo:doctoralStudent ?student .
-        ?student foaf:name ?name .
-    }
+select distinct ?name {
+dbr:Alan_Turing dbo:doctoralAdvisor ?advisor .
+?advisor dbo:doctoralStudent ?student .
+?student foaf:name ?name .
+}
 \end{lstlisting}
 To run the query:
 \begin{commandshell}
