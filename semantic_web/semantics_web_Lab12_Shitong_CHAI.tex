@@ -1,0 +1,351 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage{amsmath, amsthm, amsfonts} % depended by \DeclareMathOperator, \newtheorem, \proof, \mathbb
+\usepackage[utf8]{inputenc} % utf8 encoding
+\usepackage{listings} % for lst in color box
+\usepackage[most]{tcolorbox} % for messageshell colorbox
+\usepackage{algorithm} % depended by algpseudocode
+
+\usepackage{hyperref} % add clickable link to tableofcontents
+\usepackage{enumitem} % use enumerate
+\usepackage{float} % for [H] label in figures
+\usepackage{url} % for citing wiki
+
+\usepackage{fancyhdr} % add header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+\graphicspath{{img/}}
+
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+}
+\newtcblisting{commandshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language=sh, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={\small\ttfamily\bfseries{[oracle@tp-shchai]\$} }}
+
+\lstset{language=SQL,morekeywords={PREFIX,java,rdf,rdfs,url}}
+
+\newtcblisting{messageshell}{colback=white,colupper=black,colframe=black!75!black,
+listing only,listing options={language={}, basicstyle=\small\ttfamily, breaklines=true,aboveskip=0pt, belowskip=0pt},
+every listing line={}}
+
+\title{Semantics Web Lab \#1 and \#2 Report}
+\date{}
+\author{Shitong CHAI}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Lab \#1}
+\section{Exercise 2}
+\begin{enumerate}
+\item Execute the queries qsample1.sparql and qsample2.sparql and explain what is computed by each query.
+
+For the first query, execute the following command:
+\begin{commandshell}
+cd /opt/semantic-web-lab/myqueries
+arq -data=../mydatasets/countries.rdf -query=qsample1.rq.rtf
+\end{commandshell}
+The result:
+\begin{messageshell}
+-------------------------------------------------
+| x                                             |
+=================================================
+| <http://telegraphis.net/data/countries/FR#FR> |
+-------------------------------------------------
+\end{messageshell}
+The query selects all the countries which have the ISO Alpha2 index as "FR".
+For the second query, execute the following command:
+\begin{commandshell}
+cd /opt/semantic-web-lab/myqueries
+arq -data=../mydatasets/countries.rdf -query=qsample2.rq.rtf
+\end{commandshell}
+The result:
+\begin{messageshell}
+---------------------------------------------------------------
+| x                                             | y           |
+===============================================================
+| <http://telegraphis.net/data/countries/FR#FR> | "FRANCE"@en |
+| <http://telegraphis.net/data/countries/FR#FR> | "FRANCE"@fr |
+---------------------------------------------------------------
+\end{messageshell}
+The query selects all the countries and the its short name which have the ISO Alpha2 index as "FR".
+
+\item[(a)] What is the current population of France ? 
+
+\begin{lstlisting}[frame=single]
+PREFIX countries:<http://telegraphis.net/data/countries>
+PREFIX  gn:<http://www.geonames.org/ontology#>
+PREFIX geographis:<http://telegraphis.net/ontology/geography/geography#>
+
+Select ?x
+where {
+?fr geographis:isoAlpha2 "FR" .
+<http://telegraphis.net/data/countries/FR#FR> gn:population ?x .
+}
+\end{lstlisting}
+\item[(e)] List all the countries. 
+\begin{lstlisting}[frame=single]
+PREFIX countries: <http://telegraphis.net/data/countries>
+PREFIX  gn:  <http://www.geonames.org/ontology#>
+PREFIX geographis:  <http://telegraphis.net/ontology/geography/geography#>
+
+Select distinct ?name
+where {
+        ?country geographis:isoShortName ?name .
+
+}
+\end{lstlisting}
+
+\item[(f)] What is the landArea of France ? How do you interpret the obtained result ? 
+\begin{lstlisting}[frame=single]
+PREFIX countries: <http://telegraphis.net/data/countries>
+PREFIX  gn:  <http://www.geonames.org/ontology#>
+PREFIX geographis:  <http://telegraphis.net/ontology/geography/geography#>
+PREFIX measurement: <http://telegraphis.net/ontology/measurement/measurement#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+Select ?z ?unit
+where {
+        ?fr geographis:isoAlpha2 "FR" .
+        ?fr geographis:landArea _:a .
+        _:a rdf:value ?z .
+        _:a measurement:unit ?unit .
+}
+
+\end{lstlisting}
+
+\item[(i)] Is there an African country with an ISO 3166-1 numeric code equal to "024" ?
+\begin{lstlisting}[frame=single]
+PREFIX countries: <http://telegraphis.net/data/countries>
+PREFIX  gn:  <http://www.geonames.org/ontology#>
+PREFIX geographis:  <http://telegraphis.net/ontology/geography/geography#>
+
+ask
+{
+        ?c geographis:onContinent <http://telegraphis.net/data/continents/AF#AF>.
+        ?c geographis:isoNumeric "024" .
+
+}
+
+\end{lstlisting}
+
+\item[(k)] What is the english name of the country having an ISO 3166-1 numeric code equal to "020" ?
+\begin{lstlisting}[frame=single]
+PREFIX countries: <http://telegraphis.net/data/countries>
+PREFIX  gn:  <http://www.geonames.org/ontology#>
+PREFIX geographis:  <http://telegraphis.net/ontology/geography/geography#>
+
+Select ?x
+where {
+        ?c gn:name ?x .
+        ?c geographis:isoNumeric "020" .
+}
+\end{lstlisting}
+\end{enumerate}
+
+\chapter{Lab \#2}
+For all the SPARQL codes in the following, they all have the same prefix, which is:
+\begin{lstlisting}[frame=single]
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:    <http://purl.org/dc/terms/>
+prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+\end{lstlisting}
+
+\begin{enumerate}
+\item Find all the list of predicates and objects linked to the subject Alan Turing in dbpedia 
+\begin{lstlisting}[frame=single]
+select distinct ?x 
+{
+ {
+   dbr:Alan_Turing ?y ?x .
+ }
+ union
+ {
+   ?x ?y  dbr:Alan_Turing.
+ }
+} 
+\end{lstlisting}
+
+
+\item Find the homepage of Alan Turing
+\begin{lstlisting}[frame=single]
+select distinct ?y
+{
+
+   ?r foaf:name "Alan Turing"@en .
+   ?r foaf:isPrimaryTopicOf ?y .
+
+} 
+\end{lstlisting}
+
+\item Find the countries of Danube and where available their english labels.
+\begin{lstlisting}[frame=single]
+select distinct ?label
+{
+
+   dbr:Danube dbo:country ?country .
+   ?country rdfs:label ?label .
+   FILTER (lang(?label) = 'en')
+} 
+\end{lstlisting}
+
+
+\item Find the source countries of Nile and where available their french labels.
+\begin{lstlisting}[frame=single]
+select distinct ?label
+{
+
+   dbr:Nile dbo:sourceCountry ?country .
+   ?country rdfs:label ?label .
+   FILTER (lang(?label) = 'fr')
+} 
+\end{lstlisting}
+
+\item Find the homepage of Bob Marley
+\begin{lstlisting}[frame=single]
+select distinct ?y
+{
+   ?r foaf:name "Bob Marley"@en .
+   ?r foaf:isPrimaryTopicOf ?y .
+
+} 
+\end{lstlisting}
+
+\item Find all people influenced by Alan Turing
+\begin{lstlisting}[frame=single]
+select ?x
+{
+    ?x dbo:influencedBy dbr:Alan_Turing .
+}
+\end{lstlisting}
+
+\item Find all people influenced by someone influenced by Alan Turing
+\begin{lstlisting}[frame=single]
+select distinct ?y
+{
+    ?x dbo:influencedBy dbr:Alan_Turing .
+    ?y dbo:influencedBy ?x .
+}
+\end{lstlisting}
+
+\item Find all people that were doctoral students of Alan Turing or influenced by him
+\begin{lstlisting}[frame=single]
+select distinct ?x
+{
+    {
+        ?x dbo:influencedBy dbr:Alan_Turing .
+    }
+    union
+    {
+        ?x dbo:doctoralAdvisor dbr:Alan_Turing .
+    }
+}
+\end{lstlisting}
+
+\item Find all people that are connected to Alan Turing via the influenced by relationship
+\begin{lstlisting}[frame=single]
+select distinct ?x
+{
+    {
+        ?x dbo:influencedBy+ dbr:Alan_Turing .
+    }
+    union
+    {
+        dbr:Alan_Turing dbo:influencedBy+ ?x .
+    }
+}
+\end{lstlisting}
+
+\item Give the list of the names of people that are linked via the doctoral student relationship with someone that has been a doctoral student of Alan Turing
+\begin{lstlisting}[frame=single]
+select distinct ?name
+{
+    ?x foaf:name ?name .
+    ?x dbo:doctoralAdvisor+ dbr:Alan_Turing .
+}
+\end{lstlisting}
+
+\item Give the names of all the persons that are connected to Alan Turing
+\begin{lstlisting}[frame=single]
+select distinct ?name  
+{
+     ?x foaf:name ?name .
+     {
+         ?x ?conn dbr:Alan_Turing .
+         ?x a foaf:Person .
+     } UNION {
+        ?y ?conn dbr:Alan_Turing .
+        ?y a foaf:Person .
+        ?x ?conn ?y .
+     }
+}
+
+\end{lstlisting}
+
+\item Give the number of institutions Alan Turing worked for.
+\begin{lstlisting}[frame=single]
+select count(distinct ?x)
+{
+    dbr:Alan_Turing dbp:workInstitutions ?x .
+    ?x ?y ?z .
+}
+\end{lstlisting}
+
+\item Give the list of fields of Alan Turing except those that are also the fields of Alonzo Church
+\begin{lstlisting}[frame=single]
+select distinct ?x
+{
+    dbr:Alan_Turing dbo:field ?x .
+    filter not exists 
+    {
+        dbr:Alonzo_Church dbo:field ?y .
+        filter (?x == ?y)
+    }
+}
+\end{lstlisting}
+
+\item The list of scientists in the field of Logic ordered according to the the number of their doctoral students.
+\begin{lstlisting}[frame=single]
+select ?sci (count(distinct ?stu) as ?c)
+{
+    ?sci dbo:field dbr:Logic .
+    ?stu dbo:doctoralAdvisor ?sci .
+}
+order by desc(?c) 
+\end{lstlisting}
+
+\item Give the most popular scientists with an average age of doctoral students above 30 years.
+\begin{lstlisting}[frame=single]
+select ?sci 
+{
+    ?inf dbo:influencedBy ?sci .
+    ?stu dbo:doctoralAdvisor ?sci .
+    ?stu dbo:birthDate ?birthdate ;
+         dbo:deathDate ?deathdate .
+    FILTER (datatype(?birthdate) = xsd:date && datatype(?deathdate) = xsd:date )
+    bind( year(?deathdate) - year(?birthdate) - if(month(?deathdate)<month(?birthdate) || (month(?deathdate)=month(?birthdate) && day(?deathdate)<day(?birthdate)),1,0) as ?age )
+
+}
+group by ?sci
+having (avg(?age) > 30)
+order by desc(count(distinct ?inf))
+limit 10
+\end{lstlisting}
+\end{enumerate}
+\end{document}
