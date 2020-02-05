@@ -54,9 +54,9 @@ MNI is defined as follows:
 
 The main idea of incGM+ is rather simple based on the important property of MNI metric that keeps the extended graphs of infrequent subgraph infrequent, which is formalized by the following theorem.
 \begin{theorem}
-    (Property of MNI\cite{grami}) For a graph $G$, we have a tree $T$  whose nodes are subgraphs of $G$, say $n_T\in G$. And the tree is constructed by extending root with $n\in V(G), n\notin V(root)$ recursively. If we have subgraphs $S_1$ and $S_2$, if a subgraph $S_1$ is a child of subgraph $S_2$ and $S_2$ is infrequent in MNI metric, then $S_1$ is also infrequent in MNI metric.
+    (Property of MNI\cite{grami}) For a graph $G$, we have a tree $T$  whose nodes are subgraphs of $G$, say $n_T\in G$. And the tree is constructed by extending root with $n\in V(G), n\notin V(root)$ recursively. If we have subgraphs $S_1$ and $S_2$, subgraph $S_1$ is a child of subgraph $S_2$ and $S_2$ is infrequent in MNI metric, then $S_1$ is also infrequent in MNI metric.
 \end{theorem}
-Based on the theories in the above, we can imagine that in the space of subgraphs of graph $G$, denoted by $\mathscr{G}=\{G[S]:\ S\subseteq V(G)\}$. There are some subgraphs that are frequent, and there are some subgraphs that are infrequent, which is a bipartition of subgraph space $\mathscr{G}$. 
+Based on the theories in the above, we can work in the space of subgraphs of graph $G$, denoted by $\mathscr{G}=\{G[S]:\ S\subseteq V(G)\}$. In the subgraph space $\mathscr G$, there are some subgraphs that are frequent, and there are some subgraphs that are infrequent, which is a bipartition of subgraph space $\mathscr{G}$. 
 
 Based on the \emph{Property of MNI}, all the extended graphs of infrequent subgraphs are infrequent, so there must be at least one subgraph that is the minimal one in size in the subgraph space $\mathscr{G}$, which is called Minimal InFrequent Subgraphs(MIFS). Symmetrically, we have
 Maximal Frequent Subgraphs(MFS) which is the subgraphs which is maximal in size in the subgraph space $\mathscr{G}$.
@@ -312,12 +312,14 @@ And the time cost of adding an edge with respect to the size of the base graph (
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{time_cost}
+\includegraphics[width=0.8\textwidth]{time_cost}
 \caption{Time cost}
 \end{figure}
 
 From the figure we can observe that the VF2 algorithm may not be suitable for the \emph{EVALUATE} function for incGM+. The reordering optimization cannot be performed here, which may be the reason why the time complexity is so high.
 
+For distributed subgraph mining,  the file name of base graphs $G_i$ and its content will be used as key value pairs to mapper, the mapper can use this algorithm to output the MFS with its local supports as mapped key value pairs. And the reducer will reduce by merging support values, compute the global support and output the frequent subgraphs. This can be done easily with MapReduce programming model in Hadoop. Just the same method as normal distributed subgraph mining
+taught in the class. 
 \bibliography{report_bib}{}
 \bibliographystyle{plain}
 \end{document}
