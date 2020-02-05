@@ -1,0 +1,4 @@
+xelatex Shitong_CHAI_incGM
+xelatex Shitong_CHAI_incGM
+bibtex Shitong_CHAI_incGM
+xelatex Shitong_CHAI_incGM
