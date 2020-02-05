@@ -110,6 +110,8 @@ where {
 \end{lstlisting}
 
 \item[(f)] What is the landArea of France ? How do you interpret the obtained result ? 
+
+    The normal selection will give the result like \_:n0, this indicates that the landArea of France is a blank node, so instead use the following code:
 \begin{lstlisting}[frame=single]
 PREFIX countries: <http://telegraphis.net/data/countries>
 PREFIX  gn:  <http://www.geonames.org/ontology#>
@@ -315,7 +317,7 @@ select distinct ?x
     filter not exists 
     {
         dbr:Alonzo_Church dbo:field ?y .
-        filter (?x == ?y)
+        filter (?x = ?y)
     }
 }
 \end{lstlisting}

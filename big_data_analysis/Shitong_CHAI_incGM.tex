@@ -253,10 +253,10 @@ To verify the correctness of my implementation, I randomly generated this graph 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{base}
-\caption{Base graph $g$}
+\caption{Base graph $G$}
 \end{figure}
 
-The generated frequent subgraph patterns reduced by isomorphism from the fringe set MFS is as follows, 37 patterns in total.
+The generated frequent subgraph patterns reduced by isomorphism from the fringe set MFS is as follows, 37 patterns in total with minimum support $\tau=7$.
 \begin{figure}[H]
 \centering
     \begin{tabular}{c p{3cm}p{3cm}clc} 
@@ -273,7 +273,7 @@ The generated frequent subgraph patterns reduced by isomorphism from the fringe 
             \includegraphics[width=0.13\textwidth]{10}&
             \includegraphics[width=0.13\textwidth]{11}\\
     \end{tabular}
-    \caption{Frequent patterns generated}
+    \caption{Frequent patterns generated($\tau=7$)}
 \end{figure}
 \begin{figure}[H]
 \centering
@@ -305,7 +305,7 @@ The generated frequent subgraph patterns reduced by isomorphism from the fringe 
             \includegraphics[width=0.13\textwidth]{36}&
 
     \end{tabular}
-    \caption{Frequent patterns generated (Continued)}
+    \caption{Frequent patterns generated (Continued)($\tau=7$)}
 \end{figure}
 
 And the time cost of adding an edge with respect to the size of the base graph (by edge) is shown below.
@@ -313,7 +313,7 @@ And the time cost of adding an edge with respect to the size of the base graph (
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{time_cost}
-\caption{Time cost}
+\caption{Time cost with respect to graph size}
 \end{figure}
 
 From the figure we can observe that the VF2 algorithm may not be suitable for the \emph{EVALUATE} function for incGM+. The reordering optimization cannot be performed here, which may be the reason why the time complexity is so high.
