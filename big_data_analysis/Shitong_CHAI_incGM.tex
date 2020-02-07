@@ -1,6 +1,5 @@
 \documentclass[a4paper, 12pt]{report}
 \usepackage{amsmath, amsthm, amsfonts} % depended by \DeclareMathOperator, \newtheorem, \proof, \mathbb
-\usepackage{pgffor}
 \usepackage{array}
 \usepackage{ifthen}
 \usepackage{mathrsfs} % for mathscr
@@ -14,6 +13,7 @@
 \usepackage{enumitem} % use enumerate
 \usepackage{float} % for [H] label in figures
 \usepackage{url} % for citing wiki
+\usepackage{intcalc} % modulo macro?
 
 \usepackage{fancyhdr} % add header and footer
 \pagestyle{fancy}
@@ -34,6 +34,8 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}[chapter]
+
+\newcounter{i}
 
 \title{Big Data Analysis Report(incGM+)}
 \date{}
@@ -260,49 +262,12 @@ The generated frequent subgraph patterns reduced by isomorphism from the fringe 
 \begin{figure}[H]
 \centering
     \begin{tabular}{c p{3cm}p{3cm}clc} 
-            \includegraphics[width=0.13\textwidth]{0}&
-            \includegraphics[width=0.13\textwidth]{1}&
-            \includegraphics[width=0.13\textwidth]{2}&
-            \includegraphics[width=0.13\textwidth]{3}\\
-            \includegraphics[width=0.13\textwidth]{4}&
-            \includegraphics[width=0.13\textwidth]{5}&
-            \includegraphics[width=0.13\textwidth]{6}&
-            \includegraphics[width=0.13\textwidth]{7}\\
-            \includegraphics[width=0.13\textwidth]{8}&
-            \includegraphics[width=0.13\textwidth]{9}&
-            \includegraphics[width=0.13\textwidth]{10}&
-            \includegraphics[width=0.13\textwidth]{11}\\
-    \end{tabular}
-    \caption{Frequent patterns generated($\tau=7$)}
-\end{figure}
-\begin{figure}[H]
-\centering
-    \begin{tabular}{c p{3cm}p{3cm}clc} 
-            \includegraphics[width=0.13\textwidth]{12}&
-            \includegraphics[width=0.13\textwidth]{13}&
-            \includegraphics[width=0.13\textwidth]{14}&
-            \includegraphics[width=0.13\textwidth]{15}\\
-            \includegraphics[width=0.13\textwidth]{16}&
-            \includegraphics[width=0.13\textwidth]{17}&
-            \includegraphics[width=0.13\textwidth]{18}&
-            \includegraphics[width=0.13\textwidth]{19}\\
-            \includegraphics[width=0.13\textwidth]{20}&
-            \includegraphics[width=0.13\textwidth]{21}&
-            \includegraphics[width=0.13\textwidth]{22}&
-            \includegraphics[width=0.13\textwidth]{23}\\
-            \includegraphics[width=0.13\textwidth]{24}&
-            \includegraphics[width=0.13\textwidth]{25}&
-            \includegraphics[width=0.13\textwidth]{26}&
-            \includegraphics[width=0.13\textwidth]{27}\\
-            \includegraphics[width=0.13\textwidth]{28}&
-            \includegraphics[width=0.13\textwidth]{29}&
-            \includegraphics[width=0.13\textwidth]{30}&
-            \includegraphics[width=0.13\textwidth]{31}\\
-            \includegraphics[width=0.13\textwidth]{32}&
-            \includegraphics[width=0.13\textwidth]{33}&
-            \includegraphics[width=0.13\textwidth]{34}&
-            \includegraphics[width=0.13\textwidth]{35}\\
-            \includegraphics[width=0.13\textwidth]{36}&
+        \setcounter{i}{0}
+        \whiledo{\value{i} < 37} {
+            \includegraphics[width=0.13\textwidth]{\thei} 
+            \ifthenelse{\intcalcMod{\value{i}}{4} = 3}{\\}{&}
+            \stepcounter{i}
+        }
 
     \end{tabular}
     \caption{Frequent patterns generated (Continued)($\tau=7$)}
