@@ -6,7 +6,7 @@
   \documentclass[a4paper, 12pt]{report}
   ```
 
-- 使用\DeclareMathOperator, \newtheorem, \proof
+- 使用\DeclareMathOperator, \newtheorem, proof
 
   ```latex
   \usepackage{amsmath, amsthm}
@@ -133,6 +133,8 @@
 
   ```latex
   \usepackage[chapter]{algorithm}
+  \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+  \renewcommand{\algorithmicensure}{\textbf{Output:}}
   \begin{document}
   \begin{algorithm}
       \caption{DBSCAN}\label{euclid}
