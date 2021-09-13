@@ -1,0 +1,53 @@
+\documentclass[UTF8, a4paper, 12pt]{ctexart}
+\usepackage{amsmath, amsthm, amsfonts} % depended by \DeclareMathOperator, \newtheorem, \proof, \mathbb
+\usepackage{mathrsfs} % for mathscr
+\usepackage[utf8]{inputenc} % utf8 encoding
+\usepackage{listings} % for lst in color box
+\usepackage[most]{tcolorbox} % for messageshell colorbox
+\usepackage{algorithm} % depended by algpseudocode
+
+\usepackage{hyperref} % add clickable link to tableofcontents
+\usepackage{enumitem} % use enumerate
+\usepackage{float} % for [H] label in figures
+
+\usepackage{fancyhdr} % add header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+\usepackage{geometry} % set margin
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\makeatletter
+\def\primeenum#1{\expandafter\@mynumbering\csname c@#1\endcsname}
+\def\@mynumbering#1{
+  \ifcase#1
+  \or
+  2\or 5\or 6\or 7\or 9\or 14\or 19\or 20\or 25\or 27\else\@ctrerr\fi
+}
+\AddEnumerateCounter*{\myenum}{\@mynumbering}{100}
+\makeatother
+
+\title{作业1}
+\date{}
+\author{名字(学号)}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}[label={\myenum*.}]
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+    \item 证明：
+\end{enumerate}
+
+\end{document}
